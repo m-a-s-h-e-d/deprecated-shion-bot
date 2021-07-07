@@ -1,12 +1,11 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 namespace ShionBot
 {
     class Program
     {
-        static void Main(string[] args)
-        {
-            Console.WriteLine("Hello World!");
-        }
+        public static async Task Main(string[] args)
+            => await Startup.RunAsync(args);
     }
 }
