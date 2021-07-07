@@ -28,7 +28,7 @@ bld/
 [Ll]og/
 
 # Configuration files
-Services/_config.yml
+_config.yml
 
 # Visual Studio 2015/2017 cache/options directory
 .vs/
