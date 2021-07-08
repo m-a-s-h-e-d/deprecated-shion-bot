@@ -33,6 +33,7 @@ namespace ShionBot.Modules
         }
 
         [Command("info")]
+        [Alias("user")]
         public async Task Info([Remainder]SocketGuildUser user = null)
         {
             var rnd = new Random();
@@ -128,6 +129,7 @@ namespace ShionBot.Modules
         }
 
         [Command("bot-info")]
+        [Alias("bot")]
         public async Task BotInfo()
         {
             var builder = new EmbedBuilder()
@@ -146,6 +148,7 @@ namespace ShionBot.Modules
         }
 
         [Command("server-info")]
+        [Command("server")]
         public async Task ServerInfo()
         {
             var builder = new EmbedBuilder()
