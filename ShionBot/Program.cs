@@ -6,6 +6,7 @@ using Discord.Commands;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Schema;
 using Serilog;
 using Serilog.Events;
 using ShionBot.Services;
@@ -68,6 +69,11 @@ namespace ShionBot
                 {
                     services.AddHostedService<CommandHandler>();
                     services.AddHostedService<BotStatusService>();
+                    services.AddDbContext<SchemaContext>();
+                    services.AddSingleton<Servers>();
+                    services.AddSingleton<Users>();
+                    services.AddSingleton<Balances>();
+                    services.AddSingleton<Experiences>();
                 });
     }
 }

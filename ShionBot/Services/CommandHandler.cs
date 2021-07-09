@@ -9,6 +9,7 @@ using Discord.Commands;
 using Discord.WebSocket;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Schema;
 using Serilog;
 
 namespace ShionBot
@@ -18,12 +19,20 @@ namespace ShionBot
         private readonly IServiceProvider _provider;
         private readonly CommandService _commandService;
         private readonly IConfiguration _config;
+        private readonly Servers _servers;
+        private readonly Users _users;
+        private readonly Balances _balances;
+        private readonly Experiences _experiences;
 
-        public CommandHandler(DiscordSocketClient client, ILogger<CommandHandler> logger, IServiceProvider provider, CommandService commandService, IConfiguration config) : base(client, logger)
+        public CommandHandler(DiscordSocketClient client, ILogger<CommandHandler> logger, IServiceProvider provider, CommandService commandService, IConfiguration config, Servers servers, Users users, Balances balances, Experiences experiences) : base(client, logger)
         {
             _provider = provider;
             _commandService = commandService;
             _config = config;
+            _servers = servers;
+            _users = users;
+            _balances = balances;
+            _experiences = experiences;
         }
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
@@ -38,8 +47,12 @@ namespace ShionBot
             if (message.Source != MessageSource.User) return;
 
             int argPos = 0;
-            if (!message.HasStringPrefix(_config["Prefix"], ref argPos) && !message.HasMentionPrefix(Client.CurrentUser, ref argPos)) return;
-            if (message.ToString().Trim().Equals(".")) return;
+            var prefix = await _servers.GetGuildPrefix((message.Channel as SocketGuildChannel).Guild.Id) ?? ".";
+
+            if (!message.HasStringPrefix(prefix, ref argPos) && !message.HasMentionPrefix(Client.CurrentUser, ref argPos)) return;
+
+            // Ignore if no command was specified
+            if (message.ToString().Trim().Equals(prefix)) return;
 
             var context = new SocketCommandContext(Client, message);
 
@@ -71,7 +84,15 @@ namespace ShionBot
             if (!command.IsSpecified || result.IsSuccess)
                 return;
 
-            await context.Message.ReplyAsync($"An error occurred: `{result.ErrorReason}`");
+            switch (result.Error)
+            {
+                case CommandError.ParseFailed:
+                    await context.Message.ReplyAsync($"One or more of the arguments entered in your command `{command.Value.Name}`, were invalid.");
+                    break;
+                default:
+                    await context.Message.ReplyAsync($"An unknown error occurred: `{result.ErrorReason}`");
+                    break;
+            }
         }
     }
 }

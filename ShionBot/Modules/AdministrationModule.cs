@@ -12,6 +12,7 @@ using Microsoft.CodeAnalysis.CSharp.Scripting;
 using Microsoft.CodeAnalysis.Scripting;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Schema;
 
 namespace ShionBot.Modules
 {
@@ -19,13 +20,39 @@ namespace ShionBot.Modules
     {
         private readonly ILogger<AdministrationModule> _logger;
         private readonly IHost _host;
-        //You can inject the host. This is useful if you want to shutdown the host via a command, but be careful with it.
+        private readonly Servers _servers;
+        private readonly Users _users;
+        private readonly Balances _balances;
+        private readonly Experiences _experiences;
         private readonly Color _botEmbedColor = new(4, 28, 99);
 
-        public AdministrationModule(IHost host, ILogger<AdministrationModule> logger)
+        public AdministrationModule(IHost host, ILogger<AdministrationModule> logger, Servers servers, Users users, Balances balances, Experiences experiences)
         {
             _host = host;
             _logger = logger;
+            _servers = servers;
+            _users = users;
+            _balances = balances;
+            _experiences = experiences;
+        }
+
+        [Command("compensate")]
+        [RequireUserPermission(GuildPermission.Administrator)]
+        public async Task CompensateMoney(long balanceInjected, [Remainder] SocketGuildUser user = null)
+        {
+            if (user == null)
+                throw new ArgumentException("No user was specified.");
+
+            // Add money to the target user
+            await _balances.ModifyBalance(user.Id, +balanceInjected);
+
+            var builder = new EmbedBuilder()
+                .WithColor(_botEmbedColor)
+                .WithTitle($"{user.Username} Received Money")
+                .AddField("Amount Transferred", $"{balanceInjected} :coin:", true)
+                .WithCurrentTimestamp();
+
+            await ReplyAsync(embed: builder.Build());
         }
 
         [Command("purge")]
@@ -38,6 +65,27 @@ namespace ShionBot.Modules
             var message = await ReplyAsync($"{messages.Count()} messages were deleted.");
             await Task.Delay(2500);
             await message.DeleteAsync();
+        }
+
+        [Command("prefix")]
+        [RequireUserPermission(GuildPermission.Administrator)]
+        public async Task Prefix(string prefix = null)
+        {
+            if (prefix == null)
+            {
+                var guildPrefix = await _servers.GetGuildPrefix(Context.Guild.Id) ?? ".";
+                await ReplyAsync($"The current prefix of this bot is `{guildPrefix}`.");
+                return;
+            }
+
+            if (prefix.Length > 8)
+            {
+                await ReplyAsync($"The length of the new prefix is too long!");
+                return;
+            }
+
+            await _servers.ModifyGuildPrefix(Context.Guild.Id, prefix);
+            await ReplyAsync($"The new prefix of this bot is `{prefix}`.");
         }
 
         [Command("log")]
@@ -101,7 +149,7 @@ namespace ShionBot.Modules
                 .WithImports("System", "System.Collections.Generic", "System.Diagnostics", "System.Linq", "System.Text",
                              "System.Threading.Tasks", "Discord", "Discord.Commands", "Discord.WebSocket",
                              "Microsoft.CodeAnalysis", "Microsoft.CodeAnalysis.CSharp.Scripting", "Microsoft.CodeAnalysis.Scripting",
-                             "Microsoft.Extensions.Hosting", "Microsoft.Extensions.Logging")
+                             "Microsoft.Extensions.Hosting", "Microsoft.Extensions.Logging", "Schema")
                 .WithReferences(AppDomain.CurrentDomain.GetAssemblies().Where(xa => !xa.IsDynamic && !string.IsNullOrWhiteSpace(xa.Location)));
 
             var sw1 = Stopwatch.StartNew();
@@ -112,7 +160,7 @@ namespace ShionBot.Modules
             {
                 embed = new EmbedBuilder()
                     .WithTitle("Compilation failed")
-                    .WithDescription($"Compilation failed after {sw1.ElapsedMilliseconds.ToString("#.##0")}ms with {csc.Length.ToString("#,##0")} errors.")
+                    .WithDescription($"Compilation failed after {sw1.ElapsedMilliseconds:#.##0}ms with {csc.Length:#,##0} errors.")
                     .WithColor(_botEmbedColor);
 
                 foreach (var xd in csc.Take(3))
@@ -147,7 +195,7 @@ namespace ShionBot.Modules
             {
                 embed = new EmbedBuilder()
                     .WithTitle("Execution failed")
-                    .WithDescription($"Execution failed after {sw2.ElapsedMilliseconds.ToString("#,##0")}ms with `{rex.GetType()}: {rex.Message}`.")
+                    .WithDescription($"Execution failed after {sw2.ElapsedMilliseconds:#,##0}ms with `{rex.GetType()}: {rex.Message}`.")
                     .WithColor(_botEmbedColor);
                 await msg.ModifyAsync(m => {
                     m.Embed = embed.Build();
