@@ -71,10 +71,8 @@ namespace ShionBot.Modules
             var sw = Stopwatch.StartNew();
             try
             {
-                if (host.Equals(""))
-                    MinecraftServer.Connect(dns, port);
-                else
-                    MinecraftServer.Connect(host, port);
+                if (!MinecraftServer.ConnectAsync(hostString, port).Wait(TimeSpan.FromSeconds(5)))
+                    throw new Exception();
                 sw.Stop();
                 await msg.ModifyAsync(m => {
                     m.Content = $":green_circle: Successfully found a connection in {sw.ElapsedMilliseconds}ms. If the port is correct, the server should be up.";

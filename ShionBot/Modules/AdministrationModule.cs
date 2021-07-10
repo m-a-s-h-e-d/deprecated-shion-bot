@@ -47,7 +47,7 @@ namespace ShionBot.Modules
             await _balances.ModifyBalance(user.Id, +balanceInjected);
 
             var builder = new EmbedBuilder()
-                .WithColor(_botEmbedColor)
+                .WithColor(new Color(await _users.GetEmbedColor(user.Id)))
                 .WithTitle($"{user.Username} Received Money")
                 .AddField("Amount Transferred", $"{balanceInjected} :coin:", true)
                 .WithCurrentTimestamp();

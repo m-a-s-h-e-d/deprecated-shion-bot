@@ -12,6 +12,7 @@ using Discord.WebSocket;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Schema;
+using ShionBot.Utilities;
 
 namespace ShionBot.Modules
 {
@@ -33,7 +34,6 @@ namespace ShionBot.Modules
             _experiences = experiences;
         }
 
-        //TODO Leaderboard for balance and level
         /*[Command("leaderboard")]
         [Alias("lb")]
         public async Task Leaderboard(string type)
@@ -43,9 +43,9 @@ namespace ShionBot.Modules
                 await Context.Channel.SendMessageAsync("Invalid usage of `.leaderboard`, you must specify `balance | level` as a parameter.");
                 return;
             }
-        }
+        }*/
 
-        [Command("global-leaderboard")]
+        /*[Command("global-leaderboard")]
         [Alias("glb")]
         public async Task GlobalLeaderboard(string type)
         {
@@ -55,6 +55,118 @@ namespace ShionBot.Modules
                 return;
             }
         }*/
+
+        [Command("daily")]
+        [Alias("claim")]
+        public async Task DailyClaim([Remainder] SocketGuildUser user = null)
+        {
+            //TODO Check for 23 hours since last claim
+            user ??= (SocketGuildUser)Context.User;
+
+            if (user == null)
+                throw new ArgumentException("No user was specified.");
+
+            string message = $"{Context.User.Username}#{Context.User.Discriminator} claimed their daily!";
+
+            var claimAmount = 100 + (25 * (await _experiences.GetLevel(Context.User.Id) - 1));
+            // Increase balance by daily top-off
+            await _balances.ModifyBalance(user.Id, claimAmount);
+
+            if (user.Id != Context.User.Id)
+                message = $"{Context.User.Username}#{Context.User.Discriminator} gave their daily to {user.Username}#{user.Discriminator}!";
+
+            var builder = new EmbedBuilder()
+                .WithTitle(message)
+                .AddField("Daily Earnings", $"{claimAmount} :coin:", true)
+                .WithColor(new Color(await _users.GetEmbedColor(user.Id)))
+                .WithCurrentTimestamp();
+
+            await ReplyAsync(null, false, builder.Build());
+        }
+
+        [Command("bet-flip")]
+        [Alias("bf")]
+        public async Task BetCoinFlip(int bet, string betFace)
+        {
+            if (bet < 1)
+            {
+                await ReplyAsync("Please enter a valid amount to bet.");
+                return;
+            }
+
+            var balance = await _balances.GetBalance(Context.User.Id);
+
+            if (bet > balance)
+            {
+                await ReplyAsync("You do not have sufficient funds to bet.");
+                return;
+            }
+
+            Coin coin = new();
+            coin.Flip();
+
+            bool result;
+            string face = coin.GetFace();
+
+            try
+            {
+                result = coin.Equals(betFace);
+            }
+            catch (Exception e)
+            {
+                switch (e)
+                {
+                    case ArgumentException:
+                        await ReplyAsync("You did not enter a valid coin face. (e.g: Heads or Tails)");
+                        return;
+                    default:
+                        await ReplyAsync("An unknown error occurred!");
+                        return;
+                }
+            }
+
+            // Deduct the bet cost and then evaluate earnings
+            await _balances.ModifyBalance(Context.User.Id, -bet);
+            var betEarnings = result ? (2 * bet) : 0;
+            await _balances.ModifyBalance(Context.User.Id, betEarnings);
+
+            var builder = new EmbedBuilder()
+                .WithTitle($"{Context.User.Username}#{Context.User.Discriminator} flipped the coin")
+                .WithDescription($"{(face == "Heads" ? "🔼" : "🔽")} It landed on {face.ToLower()}! {(result ? "You won!" : "Tough luck.")}")
+                .AddField("Earnings", $"{betEarnings} :coin:", true)
+                .WithColor(new Color(await _users.GetEmbedColor(Context.User.Id)))
+                .WithCurrentTimestamp();
+
+            await ReplyAsync(null, false, builder.Build());
+        }
+
+        [Command("coin-flip")]
+        [Alias("flip")]
+        public async Task CoinFlip(int times = 1)
+        {
+            if (times < 1 || times > 10)
+            {
+                await ReplyAsync("Please enter a value between 1 and 10 for number of coin flips.");
+                return;
+            }
+
+            Coin coin = new();
+            string faceResults = "";
+
+            for (int i = 0; i < times; i++)
+            {
+                coin.Flip();
+                faceResults += $"{(coin.GetFace() == "Heads" ? "🔼" : "🔽")} ";
+            }
+
+            var builder = new EmbedBuilder()
+                .WithTitle($"{Context.User.Username}#{Context.User.Discriminator} flipped the coin {times} {(times == 1 ? "time" : "times")}")
+                .WithDescription(faceResults)
+                .WithColor(new Color(await _users.GetEmbedColor(Context.User.Id)))
+                .WithCurrentTimestamp();
+
+            await ReplyAsync(null, false, builder.Build());
+        }
 
         [Command("give")]
         [Alias("pay", "transfer")]
@@ -90,7 +202,7 @@ namespace ShionBot.Modules
             await _balances.ModifyBalance(user.Id, +balanceTransferred);
 
             var builder = new EmbedBuilder()
-                .WithColor(_botEmbedColor)
+                .WithColor(new Color(await _users.GetEmbedColor(user.Id)))
                 .WithTitle($"{Context.User.Username} => {user.Username}")
                 .AddField("Amount Transferred", $"{balanceTransferred} :coin:", true)
                 .WithCurrentTimestamp();
@@ -107,7 +219,7 @@ namespace ShionBot.Modules
             var balance = await _balances.GetBalance(user.Id);
             var builder = new EmbedBuilder()
                 .WithTitle($"{user.Username}'s Current Balance")
-                .WithColor(_botEmbedColor)
+                .WithColor(new Color(await _users.GetEmbedColor(Context.User.Id)))
                 .AddField("Current Balance", $"{balance} :coin:", true)
                 .WithCurrentTimestamp();
 

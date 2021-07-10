@@ -33,6 +33,7 @@ namespace Schema
         [Key]
         public ulong UserId { get; set; }
         public string EmbedColor { get; set; }
+        //TODO Rep Count and Timestamp from last Rep
     }
 
     public class Balance
@@ -40,6 +41,7 @@ namespace Schema
         [Key]
         public ulong UserId { get; set; }
         public long Bal { get; set; }
+        //TODO Timestamp from Last Daily Claim
     }
 
     public class Experience
@@ -48,5 +50,6 @@ namespace Schema
         public ulong UserId { get; set; }
         public int Level { get; set; }
         public long Exp { get; set; }
+        //TODO Timestamp from Last Message
     }
 }

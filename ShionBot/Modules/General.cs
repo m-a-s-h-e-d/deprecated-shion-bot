@@ -13,6 +13,7 @@ using Discord.WebSocket;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Schema;
+using ShionBot.Extensions;
 
 namespace ShionBot.Modules
 {
@@ -48,7 +49,7 @@ namespace ShionBot.Modules
         {
             user ??= (SocketGuildUser)Context.User;
 
-            var builder = new EmbedBuilder()
+            await new EmbedBuilder()
                 .WithTitle($"{user.Username}#{user.Discriminator}'s User Info")
                 .WithThumbnailUrl(user.GetAvatarUrl() ?? user.GetDefaultAvatarUrl())
                 .AddField("User ID", user.Id, true)
@@ -56,10 +57,8 @@ namespace ShionBot.Modules
                 .AddField("Created at", user.CreatedAt.ToString("MMMM dd, yyyy"), true)
                 .AddField("Joined at", (user).JoinedAt.Value.ToString("MMMM dd, yyyy"), true)
                 .WithColor(new Color(await _users.GetEmbedColor(user.Id)))
-                .WithCurrentTimestamp();
-
-            var embed = builder.Build();
-            await Context.Channel.SendMessageAsync(null, false, embed);
+                .WithCurrentTimestamp()
+                .BuildAndSendEmbed(Context.Channel);
         }
 
         [Command("status")]
@@ -67,21 +66,19 @@ namespace ShionBot.Modules
         {
             user ??= (SocketGuildUser)Context.User;
 
-            var builder = new EmbedBuilder()
+            await new EmbedBuilder()
                 .WithTitle($"{user.Username}#{user.Discriminator}'s Current Status")
                 .WithThumbnailUrl(user.GetAvatarUrl() ?? user.GetDefaultAvatarUrl())
                 .AddField("Currently", user.Activity.Name, true)
                 .WithColor(new Color(await _users.GetEmbedColor(user.Id)))
-                .WithCurrentTimestamp();
-
-            var embed = builder.Build();
-            await Context.Channel.SendMessageAsync(null, false, embed);
+                .WithCurrentTimestamp()
+                .BuildAndSendEmbed(Context.Channel);
         }
 
         [Command("set-embed")]
         public async Task ModifyEmbedColor(string hexColor)
         {
-            if (!Regex.IsMatch(hexColor, @"^[0-9A-F]{6}$"))
+            if (!Regex.IsMatch(hexColor, @"^[0-9a-fA-F]{6}$"))
             {
                 await ReplyAsync("Not a valid hex code for color. (e.g: 000000 - FFFFFF)");
                 return;
@@ -91,22 +88,20 @@ namespace ShionBot.Modules
 
             await _users.ModifyEmbedColor(user.Id, hexColor);
 
-            var builder = new EmbedBuilder()
+            await new EmbedBuilder()
                 .WithTitle($"Updated {user.Username}#{user.Discriminator}'s Embed Color")
                 .WithThumbnailUrl(user.GetAvatarUrl() ?? user.GetDefaultAvatarUrl())
                 .AddField("New Color", hexColor, true)
                 .WithColor(new Color(await _users.GetEmbedColor(user.Id)))
-                .WithCurrentTimestamp();
-
-            var embed = builder.Build();
-            await Context.Channel.SendMessageAsync(null, false, embed);
+                .WithCurrentTimestamp()
+                .BuildAndSendEmbed(Context.Channel);
         }
 
         [Command("bot-info")]
         [Alias("bot")]
         public async Task BotInfo()
         {
-            var builder = new EmbedBuilder()
+            await new EmbedBuilder()
                 .WithTitle("Shion Bot Information")
                 .WithAuthor(author =>
                 {
@@ -115,26 +110,22 @@ namespace ShionBot.Modules
                 })
                 .WithDescription("Shion was created by Mashed#7999, contact them on Discord if you have any inquiries regarding this bot.")
                 .WithColor(_botEmbedColor)
-                .WithCurrentTimestamp();
-
-            var embed = builder.Build();
-            await Context.Channel.SendMessageAsync(null, false, embed);
+                .WithCurrentTimestamp()
+                .BuildAndSendEmbed(Context.Channel);
         }
 
         [Command("server-info")]
         [Alias("server")]
         public async Task ServerInfo()
         {
-            var builder = new EmbedBuilder()
+            await new EmbedBuilder()
                 .WithThumbnailUrl(Context.Guild.IconUrl)
                 .WithTitle($"{Context.Guild.Name} Information")
                 .WithColor(_botEmbedColor)
                 .AddField("Created at", Context.Guild.CreatedAt.ToString("MMMM dd, yyyy"), true)
                 .AddField("Member Count", (Context.Guild).MemberCount + " members", true)
-                .AddField("Online Users", (Context.Guild).Users.Where(x => x.Status == UserStatus.Online).Count() + " members", true);
-            
-            var embed = builder.Build();
-            await Context.Channel.SendMessageAsync(null, false, embed);
+                .AddField("Online Users", (Context.Guild).Users.Where(x => x.Status == UserStatus.Online).Count() + " members", true)
+                .BuildAndSendEmbed(Context.Channel);
         }
     }
 }

@@ -89,6 +89,9 @@ namespace ShionBot
                 case CommandError.ParseFailed:
                     await context.Message.ReplyAsync($"One or more of the arguments entered in your command `{command.Value.Name}`, were invalid.");
                     break;
+                case CommandError.UnmetPrecondition:
+                    await context.Message.ReplyAsync($"You do not have sufficient permissions to use the `{command.Value.Name}` command.");
+                    break;
                 default:
                     await context.Message.ReplyAsync($"An unknown error occurred: `{result.ErrorReason}`");
                     break;
