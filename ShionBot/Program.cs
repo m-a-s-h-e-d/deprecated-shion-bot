@@ -72,6 +72,7 @@ namespace ShionBot
                     services.AddDbContext<SchemaContext>();
                     services.AddSingleton<Servers>();
                     services.AddSingleton<Users>();
+                    services.AddSingleton<ServerUsers>();
                     services.AddSingleton<Balances>();
                     services.AddSingleton<Experiences>();
                 });

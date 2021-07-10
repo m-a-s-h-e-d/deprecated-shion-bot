@@ -2,15 +2,17 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Schema;
 
 namespace Schema.Migrations
 {
     [DbContext(typeof(SchemaContext))]
-    partial class SchemaContextModelSnapshot : ModelSnapshot
+    [Migration("20210710085349_Version_5")]
+    partial class Version_5
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -66,17 +68,6 @@ namespace Schema.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Servers");
-                });
-
-            modelBuilder.Entity("Schema.ServerUser", b =>
-                {
-                    b.Property<ulong>("ServerId")
-                        .HasColumnType("bigint unsigned");
-
-                    b.Property<ulong>("UserId")
-                        .HasColumnType("bigint unsigned");
-
-                    b.ToTable("ServerUsers");
                 });
 
             modelBuilder.Entity("Schema.User", b =>

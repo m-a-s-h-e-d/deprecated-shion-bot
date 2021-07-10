@@ -44,5 +44,37 @@ namespace Schema
 
             return await Task.FromResult(balance);
         }
+
+        public async Task ModifyLastClaim(ulong uid, DateTime lastClaimTime)
+        {
+            var user = await _context.Balances
+                .FindAsync(uid);
+
+            if (user == null)
+                _context.Add(new Balance { UserId = uid, Bal = 0, LastClaim = lastClaimTime });
+            else
+                user.LastClaim = lastClaimTime;
+
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<DateTime?> GetLastClaim(ulong uid)
+        {
+            var user = await _context.Balances
+                .FindAsync(uid);
+
+            if (user == null)
+            {
+                _context.Add(new Balance { UserId = uid, Bal = 0, LastClaim = null });
+                await _context.SaveChangesAsync();
+            }
+
+            var lastClaim = await _context.Balances
+                .Where(x => x.UserId == uid)
+                .Select(x => x.LastClaim)
+                .FirstOrDefaultAsync();
+
+            return await Task.FromResult(lastClaim);
+        }
     }
 }

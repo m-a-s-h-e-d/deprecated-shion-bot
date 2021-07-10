@@ -16,7 +16,7 @@ namespace Schema
             _context = context;
         }
 
-        public async Task ModifyExperience(ulong uid, long expChange)
+        public async Task ModifyExp(ulong uid, long expChange)
         {
             var user = await _context.Experiences
                 .FindAsync(uid);
@@ -32,9 +32,12 @@ namespace Schema
             //TODO await ModifyLevel(uid);
         }
 
-        public async Task<long> GetExperience(ulong uid)
+        public async Task<long> GetExp(ulong uid)
         {
-            if (await _context.Experiences.FindAsync(uid) == null)
+            var user = await _context.Experiences
+                .FindAsync(uid);
+
+            if (user == null)
             {
                 _context.Add(new Experience { UserId = uid, Exp = 0, Level = 1 });
                 await _context.SaveChangesAsync();
@@ -48,27 +51,89 @@ namespace Schema
             return await Task.FromResult(experience);
         }
 
-        //TODO Update level when level up threshold is reached
-        /*public async Task ModifyLevel(ulong uid)
+        public async Task<long> GetRemainingExpToNextLevel(ulong uid)
         {
-            var level = await _context.Experiences
-                .Where(x => x.UserId == uid)
-                .Select(x => x.Level)
-                .FirstOrDefaultAsync();
+            var user = await _context.Experiences
+                .FindAsync(uid);
 
-            var currentExperience = await _context.Experiences
-                .Where(x => x.UserId == uid)
-                .Select(x => x.Experience)
-                .FirstOrDefaultAsync();
+            if (user == null)
+            {
+                _context.Add(new Experience { UserId = uid, Exp = 0, Level = 1 });
+                await _context.SaveChangesAsync();
+            }
 
-            if (currentExperience / (5 * (level ^ 2) + (25 * level) + 100) > 0)
+            var currentExp = await GetExp(uid);
+            var nextLevel = await GetLevel(uid) + 1;
+            var nextLevelExp = (5 * (nextLevel ^ 2) + (25 * nextLevel) + 100);
+
+            return await Task.FromResult(nextLevelExp - currentExp);
+        }
+
+        public async Task<long> GetExpToNextLevel(ulong uid)
+        {
+            var user = await _context.Experiences
+                .FindAsync(uid);
+
+            if (user == null)
+            {
+                _context.Add(new Experience { UserId = uid, Exp = 0, Level = 1 });
+                await _context.SaveChangesAsync();
+            }
+
+            var nextLevel = await GetLevel(uid) + 1;
+            var nextLevelExp = (5 * (nextLevel ^ 2) + (25 * nextLevel) + 100);
+
+            return await Task.FromResult(nextLevelExp);
+        }
+
+        public async Task CheckThreshold(ulong uid)
+        {
+            var user = await _context.Experiences
+                .FindAsync(uid);
+
+            if (user == null)
+            {
+                _context.Add(new Experience { UserId = uid, Exp = 0, Level = 1 });
+                await _context.SaveChangesAsync();
+                return;
+            }
+
+            var currentExp = user.Exp;
+            var currentLevel = user.Level;
+
+            while (currentExp / (5 * (currentLevel ^ 2) + (25 * currentLevel) + 100) > 0)
+            {
+                // Modify local variables
+                currentExp -= (5 * (currentLevel ^ 2) + (25 * currentLevel) + 100);
+                currentLevel++;
+
+                // Modify in database
+                user.Exp = currentExp;
+                user.Level = currentLevel;
+            }
 
             await _context.SaveChangesAsync();
-        }*/
+        }
 
-        public async Task<long> GetLevel(ulong uid)
+        public async Task ModifyLevel(ulong uid, int levelChange)
         {
-            if (await _context.Experiences.FindAsync(uid) == null)
+            var user = await _context.Experiences
+                .FindAsync(uid);
+
+            if (user == null)
+                _context.Add(new Experience { UserId = uid, Level = levelChange + 1, Exp = 0, LastMessage = null });
+            else
+                user.Level += levelChange;
+
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<int> GetLevel(ulong uid)
+        {
+            var user = await _context.Experiences
+                .FindAsync(uid);
+
+            if (user == null)
             {
                 _context.Add(new Experience { UserId = uid, Exp = 0, Level = 1 });
                 await _context.SaveChangesAsync();
@@ -80,6 +145,38 @@ namespace Schema
                 .FirstOrDefaultAsync();
 
             return await Task.FromResult(level);
+        }
+
+        public async Task ModifyLastMessage(ulong uid, DateTime lastMessageTime)
+        {
+            var user = await _context.Experiences
+                .FindAsync(uid);
+
+            if (user == null)
+                _context.Add(new Experience { UserId = uid, Level = 1, Exp = 0, LastMessage = lastMessageTime });
+            else
+                user.LastMessage = lastMessageTime;
+
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<DateTime?> GetLastMessage(ulong uid)
+        {
+            var user = await _context.Experiences
+                .FindAsync(uid);
+
+            if (user == null)
+            {
+                _context.Add(new Experience { UserId = uid, Level = 1, Exp = 0, LastMessage = null });
+                await _context.SaveChangesAsync();
+            }
+
+            var lastMessage = await _context.Experiences
+                .Where(x => x.UserId == uid)
+                .Select(x => x.LastMessage)
+                .FirstOrDefaultAsync();
+
+            return await Task.FromResult(lastMessage);
         }
     }
 }

@@ -21,16 +21,18 @@ namespace ShionBot
         private readonly IConfiguration _config;
         private readonly Servers _servers;
         private readonly Users _users;
+        private readonly ServerUsers _serverusers;
         private readonly Balances _balances;
         private readonly Experiences _experiences;
 
-        public CommandHandler(DiscordSocketClient client, ILogger<CommandHandler> logger, IServiceProvider provider, CommandService commandService, IConfiguration config, Servers servers, Users users, Balances balances, Experiences experiences) : base(client, logger)
+        public CommandHandler(DiscordSocketClient client, ILogger<CommandHandler> logger, IServiceProvider provider, CommandService commandService, IConfiguration config, Servers servers, Users users, ServerUsers serverusers, Balances balances, Experiences experiences) : base(client, logger)
         {
             _provider = provider;
             _commandService = commandService;
             _config = config;
             _servers = servers;
             _users = users;
+            _serverusers = serverusers;
             _balances = balances;
             _experiences = experiences;
         }
@@ -93,7 +95,7 @@ namespace ShionBot
                     await context.Message.ReplyAsync($"You do not have sufficient permissions to use the `{command.Value.Name}` command.");
                     break;
                 default:
-                    await context.Message.ReplyAsync($"An unknown error occurred: `{result.ErrorReason}`");
+                    await context.Message.ReplyAsync($"{result.ErrorReason}");
                     break;
             }
         }

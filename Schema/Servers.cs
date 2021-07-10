@@ -22,7 +22,7 @@ namespace Schema
                 .FindAsync(id);
 
             if (server == null)
-                _context.Add(new Server { Id = id, Prefix = prefix });
+                _context.Add(new Server { Id = id, Prefix = prefix});
             else
                 server.Prefix = prefix;
 

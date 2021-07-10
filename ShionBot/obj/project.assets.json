@@ -2636,6 +2636,7 @@
         "framework": ".NETCoreApp,Version=v5.0",
         "dependencies": {
           "Microsoft.EntityFrameworkCore": "5.0.7",
+          "Microsoft.EntityFrameworkCore.Relational": "5.0.7",
           "Pomelo.EntityFrameworkCore.MySql": "5.0.1"
         },
         "compile": {

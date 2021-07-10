@@ -12,6 +12,7 @@ using Discord.WebSocket;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Schema;
+using ShionBot.Core.Models;
 using ShionBot.Utilities;
 
 namespace ShionBot.Modules
@@ -19,48 +20,88 @@ namespace ShionBot.Modules
     public class FunModule : ModuleBase<SocketCommandContext>
     {
         private readonly ILogger<FunModule> _logger;
+        private readonly SchemaContext _dbContext;
         private readonly Servers _servers;
         private readonly Users _users;
+        private readonly ServerUsers _serverusers;
         private readonly Balances _balances;
         private readonly Experiences _experiences;
         private readonly Color _botEmbedColor = new(4, 28, 99);
 
-        public FunModule(ILogger<FunModule> logger, Servers servers, Users users, Balances balances, Experiences experiences)
+        public FunModule(ILogger<FunModule> logger, SchemaContext dbContext, Servers servers, Users users, ServerUsers serverusers, Balances balances, Experiences experiences)
         {
             _logger = logger;
+            _dbContext = dbContext;
             _servers = servers;
             _users = users;
+            _serverusers = serverusers;
             _balances = balances;
             _experiences = experiences;
         }
 
-        /*[Command("leaderboard")]
-        [Alias("lb")]
-        public async Task Leaderboard(string type)
+        [Command("tempdb")]
+        public async Task TempDb()
         {
-            if (!type.Equals("balance", StringComparison.OrdinalIgnoreCase) || !type.Equals("level", StringComparison.OrdinalIgnoreCase))
-            {
-                await Context.Channel.SendMessageAsync("Invalid usage of `.leaderboard`, you must specify `balance | level` as a parameter.");
-                return;
-            }
-        }*/
+            await _serverusers.AddServerUser(Context.User.Id, Context.Guild.Id);
+        }
 
-        /*[Command("global-leaderboard")]
-        [Alias("glb")]
-        public async Task GlobalLeaderboard(string type)
+        [Command("leaderboard")]
+        [Alias("lb")]
+        public async Task GetLeaderboardAsync(string type, Optional<string> view)
         {
-            if (!type.Equals("balance", StringComparison.OrdinalIgnoreCase) || !type.Equals("level", StringComparison.OrdinalIgnoreCase))
+            // This is so god damn ugly what the hell.
+            string invalidParameterMsg = "Invalid parameter was given. (e.g: leaderboard {balance | level} {server | global})";
+            string specifiedView = "server";
+
+            if (view.IsSpecified)
             {
-                await Context.Channel.SendMessageAsync("Invalid usage of `.global-leaderboard`, you must specify `balance | level` as a parameter.");
-                return;
+                specifiedView = view.ToString().ToLower();
+                if (specifiedView.Equals("server") || !specifiedView.Equals("global"))
+                {
+                    await ReplyAsync(invalidParameterMsg);
+                    return;
+                }
             }
-        }*/
+
+            switch (type.ToLower())
+            {
+                case "balance":
+                    await Leaderboard.GetBalanceLeaderboard(_dbContext, (specifiedView.Equals("server") ? Context.Guild.Id : 0));
+                    return;
+                case "level":
+                    await Leaderboard.GetLevelLeaderboard(_dbContext, (specifiedView.Equals("server") ? Context.Guild.Id : 0));
+                    return;
+                default:
+                    await ReplyAsync(invalidParameterMsg);
+                    return;
+            }
+        }
 
         [Command("daily")]
         [Alias("claim")]
         public async Task DailyClaim([Remainder] SocketGuildUser user = null)
         {
-            //TODO Check for 23 hours since last claim
+            var lastClaim = await _balances.GetLastClaim(Context.User.Id);
+
+            var now = DateTime.Now;
+
+            if (!TimerUtil.CheckValidDaily(now, lastClaim))
+            {
+                TimeSpan? span = TimerUtil.GetTimeDifference(now, lastClaim);
+                if (span == null)
+                    throw new ArgumentException("An unexpected null error has occurred!");
+                TimeSpan differenceSpan = new TimeSpan(23, 0, 0).Subtract(span.Value);
+
+                var invalidBuilder = new EmbedBuilder()
+                    .WithTitle("You need to wait for your next daily!")
+                    .AddField("Time remaining", TimerUtil.FormattedSpan(differenceSpan), true)
+                    .WithColor(new Color(await _users.GetEmbedColor(Context.User.Id)))
+                    .WithCurrentTimestamp();
+
+                await ReplyAsync(null, false, invalidBuilder.Build());
+                return;
+            }
+
             user ??= (SocketGuildUser)Context.User;
 
             if (user == null)
@@ -71,6 +112,7 @@ namespace ShionBot.Modules
             var claimAmount = 100 + (25 * (await _experiences.GetLevel(Context.User.Id) - 1));
             // Increase balance by daily top-off
             await _balances.ModifyBalance(user.Id, claimAmount);
+            await _balances.ModifyLastClaim(user.Id, now);
 
             if (user.Id != Context.User.Id)
                 message = $"{Context.User.Username}#{Context.User.Discriminator} gave their daily to {user.Username}#{user.Discriminator}!";
@@ -88,6 +130,7 @@ namespace ShionBot.Modules
         [Alias("bf")]
         public async Task BetCoinFlip(int bet, string betFace)
         {
+            // TODO Allow amounts as percentages / all / half (Probably convert this in to a utility for checking value)
             if (bet < 1)
             {
                 await ReplyAsync("Please enter a valid amount to bet.");

@@ -4,16 +4,16 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ShionBot.Utilities
+namespace ShionBot.Core.Models
 {
-    class Coin
+    public class Coin
     {
         public static readonly int Heads = 0;
         public static readonly int Tails = 1;
-        public static readonly List<string> HeadsList = new List<string> { "h", "head", "heads" };
-        public static readonly List<string> TailsList = new List<string> { "t", "tail", "tails" };
+        public static readonly List<string> HeadsList = new() { "h", "head", "heads" };
+        public static readonly List<string> TailsList = new() { "t", "tail", "tails" };
+        private readonly Random random = new();
         private int face;
-        private Random random = new();
 
         public Coin()
         {

@@ -147,9 +147,9 @@ namespace ShionBot.Modules
             var globals = new EvaluationEnvironment(Context);
             var sopts = ScriptOptions.Default
                 .WithImports("System", "System.Collections.Generic", "System.Diagnostics", "System.Linq", "System.Text",
-                             "System.Threading.Tasks", "Discord", "Discord.Commands", "Discord.WebSocket",
+                             "System.Threading.Tasks", "System.Net.Sockets", "System.Net", "Discord", "Discord.Commands", "Discord.WebSocket",
                              "Microsoft.CodeAnalysis", "Microsoft.CodeAnalysis.CSharp.Scripting", "Microsoft.CodeAnalysis.Scripting",
-                             "Microsoft.Extensions.Hosting", "Microsoft.Extensions.Logging", "Schema")
+                             "Microsoft.Extensions.Hosting", "Microsoft.Extensions.Logging", "Schema", "ShionBot.Utilities")
                 .WithReferences(AppDomain.CurrentDomain.GetAssemblies().Where(xa => !xa.IsDynamic && !string.IsNullOrWhiteSpace(xa.Location)));
 
             var sw1 = Stopwatch.StartNew();

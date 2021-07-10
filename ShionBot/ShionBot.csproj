@@ -6,6 +6,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Models\**" />
+    <EmbeddedResource Remove="Models\**" />
+    <None Remove="Models\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Discord.Addons.Hosting" Version="4.0.2" />
     <PackageReference Include="Discord.Net" Version="2.4.0" />
     <PackageReference Include="Discord.Net.Commands" Version="2.4.0" />
@@ -31,6 +37,10 @@
     <None Update="appsettings.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Core\DataStructures\" />
   </ItemGroup>
 
 </Project>
