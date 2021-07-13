@@ -13,6 +13,7 @@ using Microsoft.CodeAnalysis.Scripting;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Schema;
+using ShionBot.Utilities;
 
 namespace ShionBot.Modules
 {
@@ -20,26 +21,36 @@ namespace ShionBot.Modules
     {
         private readonly ILogger<AdministrationModule> _logger;
         private readonly IHost _host;
+        private readonly SchemaContext _dbContext;
         private readonly Servers _servers;
         private readonly Users _users;
+        private readonly ServerUsers _serverusers;
         private readonly Balances _balances;
         private readonly Experiences _experiences;
         private readonly Color _botEmbedColor = new(4, 28, 99);
 
-        public AdministrationModule(IHost host, ILogger<AdministrationModule> logger, Servers servers, Users users, Balances balances, Experiences experiences)
+        public AdministrationModule(IHost host, ILogger<AdministrationModule> logger, SchemaContext dbContext, Servers servers, Users users, ServerUsers serverusers, Balances balances, Experiences experiences)
         {
             _host = host;
             _logger = logger;
+            _dbContext = dbContext;
             _servers = servers;
             _users = users;
+            _serverusers = serverusers;
             _balances = balances;
             _experiences = experiences;
         }
 
         [Command("compensate")]
-        [RequireUserPermission(GuildPermission.Administrator)]
         public async Task CompensateMoney(long balanceInjected, [Remainder] SocketGuildUser user = null)
         {
+            if (Context.User.Id != 285106328790237195)
+            {
+                await ReplyAsync("You do not have sufficient permissions to use this command.\nAuthority Level: **[Bot Owner]**");
+                return;
+            }
+
+            //TODO Make an @everyone check
             if (user == null)
                 throw new ArgumentException("No user was specified.");
 
@@ -47,7 +58,7 @@ namespace ShionBot.Modules
             await _balances.ModifyBalance(user.Id, +balanceInjected);
 
             var builder = new EmbedBuilder()
-                .WithColor(new Color(await _users.GetEmbedColor(user.Id)))
+                .WithColor(new Color(await _users.GetEmbedColor(user.Id, UserUtil.GetFullUsername(user))))
                 .WithTitle($"{user.Username} Received Money")
                 .AddField("Amount Transferred", $"{balanceInjected} :coin:", true)
                 .WithCurrentTimestamp();
@@ -120,7 +131,7 @@ namespace ShionBot.Modules
             _ = _host.StopAsync();
         }
 
-        [Command("eval")]
+        [Command("eval", RunMode = RunMode.Async)]
         public async Task EvaluateAsync([Remainder] string code)
         {
             if (Context.User.Id != 285106328790237195)
@@ -149,7 +160,7 @@ namespace ShionBot.Modules
                 .WithImports("System", "System.Collections.Generic", "System.Diagnostics", "System.Linq", "System.Text",
                              "System.Threading.Tasks", "System.Net.Sockets", "System.Net", "Discord", "Discord.Commands", "Discord.WebSocket",
                              "Microsoft.CodeAnalysis", "Microsoft.CodeAnalysis.CSharp.Scripting", "Microsoft.CodeAnalysis.Scripting",
-                             "Microsoft.Extensions.Hosting", "Microsoft.Extensions.Logging", "Schema", "ShionBot.Utilities")
+                             "Microsoft.Extensions.Hosting", "Microsoft.Extensions.Logging", "Schema", "ShionBot.Core.Models", "ShionBot.Utilities")
                 .WithReferences(AppDomain.CurrentDomain.GetAssemblies().Where(xa => !xa.IsDynamic && !string.IsNullOrWhiteSpace(xa.Location)));
 
             var sw1 = Stopwatch.StartNew();

@@ -1,0 +1,16 @@
+﻿Commands to implement
+- help (IMPORTANT BUT I AM TOO LAZY)
+- rep
+- repcount
+- 
+- 
+
+Utilities to implement
+- InputValidator classes (bet amount / input usernames and @everyone)
+- Precondition for daily timer
+- 
+
+Stuff to modify / implement
+- Percentages for bets
+- Leaderboard for reputation
+- 

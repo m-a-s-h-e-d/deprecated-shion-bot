@@ -19,17 +19,19 @@ namespace ShionBot
         private readonly IServiceProvider _provider;
         private readonly CommandService _commandService;
         private readonly IConfiguration _config;
+        private readonly SchemaContext _dbContext;
         private readonly Servers _servers;
         private readonly Users _users;
         private readonly ServerUsers _serverusers;
         private readonly Balances _balances;
         private readonly Experiences _experiences;
 
-        public CommandHandler(DiscordSocketClient client, ILogger<CommandHandler> logger, IServiceProvider provider, CommandService commandService, IConfiguration config, Servers servers, Users users, ServerUsers serverusers, Balances balances, Experiences experiences) : base(client, logger)
+        public CommandHandler(DiscordSocketClient client, ILogger<CommandHandler> logger, IServiceProvider provider, CommandService commandService, IConfiguration config, SchemaContext dbContext, Servers servers, Users users, ServerUsers serverusers, Balances balances, Experiences experiences) : base(client, logger)
         {
             _provider = provider;
             _commandService = commandService;
             _config = config;
+            _dbContext = dbContext;
             _servers = servers;
             _users = users;
             _serverusers = serverusers;

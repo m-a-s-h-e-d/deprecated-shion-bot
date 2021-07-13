@@ -14,6 +14,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Schema;
 using ShionBot.Extensions;
+using ShionBot.Utilities;
 
 namespace ShionBot.Modules
 {
@@ -22,17 +23,31 @@ namespace ShionBot.Modules
         private readonly ILogger<General> _logger;
         private readonly Servers _servers;
         private readonly Users _users;
+        private readonly ServerUsers _serverusers;
         private readonly Balances _balances;
         private readonly Experiences _experiences;
         private readonly Color _botEmbedColor = new(4, 28, 99);
 
-        public General(ILogger<General> logger, Servers servers, Users users, Balances balances, Experiences experiences)
+        public General(ILogger<General> logger, Servers servers, Users users, ServerUsers serverusers, Balances balances, Experiences experiences)
         {
             _logger = logger;
             _servers = servers;
             _users = users;
+            _serverusers = serverusers;
             _balances = balances;
             _experiences = experiences;
+        }
+
+        // Temporary for adding a user to the database
+        [Command("tempdb")]
+        public async Task TempDb([Remainder] SocketGuildUser user = null)
+        {
+            user ??= (SocketGuildUser)Context.User;
+
+            if (user == null)
+                throw new ArgumentException("No user was specified.");
+
+            await _serverusers.AddServerUser(user.Id, Context.Guild.Id);
         }
 
         [Command("ping")]
@@ -50,15 +65,31 @@ namespace ShionBot.Modules
             user ??= (SocketGuildUser)Context.User;
 
             await new EmbedBuilder()
-                .WithTitle($"{user.Username}#{user.Discriminator}'s User Info")
+                .WithTitle($"{UserUtil.GetFullUsername(user)}'s User Info")
                 .WithThumbnailUrl(user.GetAvatarUrl() ?? user.GetDefaultAvatarUrl())
                 .AddField("User ID", user.Id, true)
                 .AddField("Discriminator", user.Discriminator, true)
                 .AddField("Created at", user.CreatedAt.ToString("MMMM dd, yyyy"), true)
                 .AddField("Joined at", (user).JoinedAt.Value.ToString("MMMM dd, yyyy"), true)
-                .WithColor(new Color(await _users.GetEmbedColor(user.Id)))
+                .WithColor(new Color(await _users.GetEmbedColor(user.Id, UserUtil.GetFullUsername(user))))
                 .WithCurrentTimestamp()
                 .BuildAndSendEmbed(Context.Channel);
+        }
+
+        [Command("updateusername")]
+        public async Task UpdateUsername()
+        {
+            var user = Context.User;
+
+            await _users.ModifyUsername(user.Id, UserUtil.GetFullUsername(user));
+
+            await new EmbedBuilder()
+                .WithTitle("Updated Username")
+                .WithDescription($"Your username was updated in the database.")
+                .AddField("New username", UserUtil.GetFullUsername(user), true)
+                .WithColor(_botEmbedColor)
+                .WithCurrentTimestamp()
+                .BuildAndReplyEmbed(Context.Message);
         }
 
         [Command("status")]
@@ -70,12 +101,12 @@ namespace ShionBot.Modules
                 .WithTitle($"{user.Username}#{user.Discriminator}'s Current Status")
                 .WithThumbnailUrl(user.GetAvatarUrl() ?? user.GetDefaultAvatarUrl())
                 .AddField("Currently", user.Activity.Name, true)
-                .WithColor(new Color(await _users.GetEmbedColor(user.Id)))
+                .WithColor(new Color(await _users.GetEmbedColor(user.Id, UserUtil.GetFullUsername(user))))
                 .WithCurrentTimestamp()
                 .BuildAndSendEmbed(Context.Channel);
         }
 
-        [Command("set-embed")]
+        [Command("setembed")]
         public async Task ModifyEmbedColor(string hexColor)
         {
             if (!Regex.IsMatch(hexColor, @"^[0-9a-fA-F]{6}$"))
@@ -86,18 +117,18 @@ namespace ShionBot.Modules
 
             var user = Context.User;
 
-            await _users.ModifyEmbedColor(user.Id, hexColor);
+            await _users.ModifyEmbedColor(user.Id, hexColor, user.Username);
 
             await new EmbedBuilder()
                 .WithTitle($"Updated {user.Username}#{user.Discriminator}'s Embed Color")
                 .WithThumbnailUrl(user.GetAvatarUrl() ?? user.GetDefaultAvatarUrl())
                 .AddField("New Color", hexColor, true)
-                .WithColor(new Color(await _users.GetEmbedColor(user.Id)))
+                .WithColor(new Color(await _users.GetEmbedColor(user.Id, UserUtil.GetFullUsername(user))))
                 .WithCurrentTimestamp()
                 .BuildAndSendEmbed(Context.Channel);
         }
 
-        [Command("bot-info")]
+        [Command("botinfo")]
         [Alias("bot")]
         public async Task BotInfo()
         {
@@ -114,7 +145,7 @@ namespace ShionBot.Modules
                 .BuildAndSendEmbed(Context.Channel);
         }
 
-        [Command("server-info")]
+        [Command("serverinfo")]
         [Alias("server")]
         public async Task ServerInfo()
         {

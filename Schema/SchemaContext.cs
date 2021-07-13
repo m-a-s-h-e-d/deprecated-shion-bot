@@ -1,7 +1,9 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace Schema
 {
@@ -18,7 +20,9 @@ namespace Schema
             var connectionString = "server=localhost;user=root;database=shionbot;port=3306;Connect Timeout = 5;";
             var serverVersion = ServerVersion.AutoDetect(connectionString);
 
-            options.UseMySql(connectionString, serverVersion);
+            options.UseMySql(connectionString,
+                serverVersion,
+                option => option.EnableRetryOnFailure());
         }
     }
 
@@ -33,14 +37,17 @@ namespace Schema
     {
         [Key]
         public ulong UserId { get; set; }
+        public string Username { get; set; }
         public string EmbedColor { get; set; }
         public long RepCount { get; set; }
         public DateTime? LastRep { get; set; }
     }
 
-    [Keyless]
     public class ServerUser
     {
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int Id { get; set; }
         public ulong ServerId { get; set; }
         public ulong UserId { get; set; }
     }

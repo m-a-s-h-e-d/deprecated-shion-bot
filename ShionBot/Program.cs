@@ -69,7 +69,7 @@ namespace ShionBot
                 {
                     services.AddHostedService<CommandHandler>();
                     services.AddHostedService<BotStatusService>();
-                    services.AddDbContext<SchemaContext>();
+                    services.AddDbContext<SchemaContext>(ServiceLifetime.Transient);
                     services.AddSingleton<Servers>();
                     services.AddSingleton<Users>();
                     services.AddSingleton<ServerUsers>();

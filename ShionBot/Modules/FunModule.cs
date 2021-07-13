@@ -39,23 +39,19 @@ namespace ShionBot.Modules
             _experiences = experiences;
         }
 
-        [Command("tempdb")]
-        public async Task TempDb()
-        {
-            await _serverusers.AddServerUser(Context.User.Id, Context.Guild.Id);
-        }
-
         [Command("leaderboard")]
         [Alias("lb")]
-        public async Task GetLeaderboardAsync(string type, Optional<string> view)
+        public async Task GetLeaderboardAsync(string type, string view = "")
         {
             // This is so god damn ugly what the hell.
             string invalidParameterMsg = "Invalid parameter was given. (e.g: leaderboard {balance | level} {server | global})";
-            string specifiedView = "server";
+            string specifiedView;
 
-            if (view.IsSpecified)
+            if (view.Equals(""))
+                specifiedView = "server";
+            else
             {
-                specifiedView = view.ToString().ToLower();
+                specifiedView = view.ToLower();
                 if (specifiedView.Equals("server") || !specifiedView.Equals("global"))
                 {
                     await ReplyAsync(invalidParameterMsg);
@@ -63,18 +59,20 @@ namespace ShionBot.Modules
                 }
             }
 
+            Embed embed;
             switch (type.ToLower())
             {
                 case "balance":
-                    await Leaderboard.GetBalanceLeaderboard(_dbContext, (specifiedView.Equals("server") ? Context.Guild.Id : 0));
-                    return;
+                    embed = await Leaderboard.GetBalanceLeaderboard(_dbContext, (specifiedView.Equals("server") ? Context.Guild.Id : 0), Context.Guild);
+                    break;
                 case "level":
-                    await Leaderboard.GetLevelLeaderboard(_dbContext, (specifiedView.Equals("server") ? Context.Guild.Id : 0));
-                    return;
+                    embed = await Leaderboard.GetLevelLeaderboard(_dbContext, (specifiedView.Equals("server") ? Context.Guild.Id : 0), Context.Guild);
+                    break;
                 default:
                     await ReplyAsync(invalidParameterMsg);
                     return;
             }
+            await ReplyAsync(embed: embed);
         }
 
         [Command("daily")]
@@ -95,7 +93,7 @@ namespace ShionBot.Modules
                 var invalidBuilder = new EmbedBuilder()
                     .WithTitle("You need to wait for your next daily!")
                     .AddField("Time remaining", TimerUtil.FormattedSpan(differenceSpan), true)
-                    .WithColor(new Color(await _users.GetEmbedColor(Context.User.Id)))
+                    .WithColor(new Color(await _users.GetEmbedColor(Context.User.Id, Context.User.Username)))
                     .WithCurrentTimestamp();
 
                 await ReplyAsync(null, false, invalidBuilder.Build());
@@ -120,13 +118,13 @@ namespace ShionBot.Modules
             var builder = new EmbedBuilder()
                 .WithTitle(message)
                 .AddField("Daily Earnings", $"{claimAmount} :coin:", true)
-                .WithColor(new Color(await _users.GetEmbedColor(user.Id)))
+                .WithColor(new Color(await _users.GetEmbedColor(user.Id, user.Username)))
                 .WithCurrentTimestamp();
 
             await ReplyAsync(null, false, builder.Build());
         }
 
-        [Command("bet-flip")]
+        [Command("betflip")]
         [Alias("bf")]
         public async Task BetCoinFlip(int bet, string betFace)
         {
@@ -171,19 +169,20 @@ namespace ShionBot.Modules
             // Deduct the bet cost and then evaluate earnings
             await _balances.ModifyBalance(Context.User.Id, -bet);
             var betEarnings = result ? (2 * bet) : 0;
+            var color = result ? new Color(2, 168, 2) : new Color(168, 2, 2);
             await _balances.ModifyBalance(Context.User.Id, betEarnings);
 
             var builder = new EmbedBuilder()
                 .WithTitle($"{Context.User.Username}#{Context.User.Discriminator} flipped the coin")
                 .WithDescription($"{(face == "Heads" ? "🔼" : "🔽")} It landed on {face.ToLower()}! {(result ? "You won!" : "Tough luck.")}")
                 .AddField("Earnings", $"{betEarnings} :coin:", true)
-                .WithColor(new Color(await _users.GetEmbedColor(Context.User.Id)))
+                .WithColor(color)
                 .WithCurrentTimestamp();
 
             await ReplyAsync(null, false, builder.Build());
         }
 
-        [Command("coin-flip")]
+        [Command("coinflip")]
         [Alias("flip")]
         public async Task CoinFlip(int times = 1)
         {
@@ -205,7 +204,7 @@ namespace ShionBot.Modules
             var builder = new EmbedBuilder()
                 .WithTitle($"{Context.User.Username}#{Context.User.Discriminator} flipped the coin {times} {(times == 1 ? "time" : "times")}")
                 .WithDescription(faceResults)
-                .WithColor(new Color(await _users.GetEmbedColor(Context.User.Id)))
+                .WithColor(new Color(await _users.GetEmbedColor(Context.User.Id, Context.User.Username)))
                 .WithCurrentTimestamp();
 
             await ReplyAsync(null, false, builder.Build());
@@ -245,7 +244,7 @@ namespace ShionBot.Modules
             await _balances.ModifyBalance(user.Id, +balanceTransferred);
 
             var builder = new EmbedBuilder()
-                .WithColor(new Color(await _users.GetEmbedColor(user.Id)))
+                .WithColor(new Color(await _users.GetEmbedColor(user.Id, UserUtil.GetFullUsername(user))))
                 .WithTitle($"{Context.User.Username} => {user.Username}")
                 .AddField("Amount Transferred", $"{balanceTransferred} :coin:", true)
                 .WithCurrentTimestamp();
@@ -262,7 +261,7 @@ namespace ShionBot.Modules
             var balance = await _balances.GetBalance(user.Id);
             var builder = new EmbedBuilder()
                 .WithTitle($"{user.Username}'s Current Balance")
-                .WithColor(new Color(await _users.GetEmbedColor(Context.User.Id)))
+                .WithColor(new Color(await _users.GetEmbedColor(user.Id, UserUtil.GetFullUsername(user))))
                 .AddField("Current Balance", $"{balance} :coin:", true)
                 .WithCurrentTimestamp();
 

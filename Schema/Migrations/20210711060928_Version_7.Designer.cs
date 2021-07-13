@@ -2,15 +2,17 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Schema;
 
 namespace Schema.Migrations
 {
     [DbContext(typeof(SchemaContext))]
-    partial class SchemaContextModelSnapshot : ModelSnapshot
+    [Migration("20210711060928_Version_7")]
+    partial class Version_7
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

@@ -2,15 +2,17 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Schema;
 
 namespace Schema.Migrations
 {
     [DbContext(typeof(SchemaContext))]
-    partial class SchemaContextModelSnapshot : ModelSnapshot
+    [Migration("20210710224108_Version_6.2")]
+    partial class Version_62
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -99,9 +101,6 @@ namespace Schema.Migrations
 
                     b.Property<long>("RepCount")
                         .HasColumnType("bigint");
-
-                    b.Property<string>("Username")
-                        .HasColumnType("longtext");
 
                     b.HasKey("UserId");
 
