@@ -3,7 +3,6 @@
 - rep
 - repcount
 - 
-- 
 
 Utilities to implement
 - InputValidator classes (bet amount / input usernames and @everyone)
@@ -13,4 +12,5 @@ Utilities to implement
 Stuff to modify / implement
 - Percentages for bets
 - Leaderboard for reputation
+- Redo database access to prevent dbcontext leaking
 - 

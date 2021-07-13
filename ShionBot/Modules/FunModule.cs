@@ -13,6 +13,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Schema;
 using ShionBot.Core.Models;
+using ShionBot.Extensions;
 using ShionBot.Utilities;
 
 namespace ShionBot.Modules
@@ -90,13 +91,12 @@ namespace ShionBot.Modules
                     throw new ArgumentException("An unexpected null error has occurred!");
                 TimeSpan differenceSpan = new TimeSpan(23, 0, 0).Subtract(span.Value);
 
-                var invalidBuilder = new EmbedBuilder()
+                await new EmbedBuilder()
                     .WithTitle("You need to wait for your next daily!")
                     .AddField("Time remaining", TimerUtil.FormattedSpan(differenceSpan), true)
-                    .WithColor(new Color(await _users.GetEmbedColor(Context.User.Id, Context.User.Username)))
-                    .WithCurrentTimestamp();
-
-                await ReplyAsync(null, false, invalidBuilder.Build());
+                    .WithColor(new Color(await _users.GetEmbedColor(Context.User.Id, UserUtil.GetFullUsername(Context.User))))
+                    .WithCurrentTimestamp()
+                    .BuildAndReplyEmbed(Context.Message);
                 return;
             }
 
@@ -115,13 +115,12 @@ namespace ShionBot.Modules
             if (user.Id != Context.User.Id)
                 message = $"{Context.User.Username}#{Context.User.Discriminator} gave their daily to {user.Username}#{user.Discriminator}!";
 
-            var builder = new EmbedBuilder()
+            await new EmbedBuilder()
                 .WithTitle(message)
                 .AddField("Daily Earnings", $"{claimAmount} :coin:", true)
-                .WithColor(new Color(await _users.GetEmbedColor(user.Id, user.Username)))
-                .WithCurrentTimestamp();
-
-            await ReplyAsync(null, false, builder.Build());
+                .WithColor(new Color(await _users.GetEmbedColor(user.Id, UserUtil.GetFullUsername(user))))
+                .WithCurrentTimestamp()
+                .BuildAndReplyEmbed(Context.Message);
         }
 
         [Command("betflip")]
@@ -172,14 +171,13 @@ namespace ShionBot.Modules
             var color = result ? new Color(2, 168, 2) : new Color(168, 2, 2);
             await _balances.ModifyBalance(Context.User.Id, betEarnings);
 
-            var builder = new EmbedBuilder()
+            await new EmbedBuilder()
                 .WithTitle($"{Context.User.Username}#{Context.User.Discriminator} flipped the coin")
                 .WithDescription($"{(face == "Heads" ? "🔼" : "🔽")} It landed on {face.ToLower()}! {(result ? "You won!" : "Tough luck.")}")
                 .AddField("Earnings", $"{betEarnings} :coin:", true)
                 .WithColor(color)
-                .WithCurrentTimestamp();
-
-            await ReplyAsync(null, false, builder.Build());
+                .WithCurrentTimestamp()
+                .BuildAndReplyEmbed(Context.Message);
         }
 
         [Command("coinflip")]
@@ -201,13 +199,12 @@ namespace ShionBot.Modules
                 faceResults += $"{(coin.GetFace() == "Heads" ? "🔼" : "🔽")} ";
             }
 
-            var builder = new EmbedBuilder()
+            await new EmbedBuilder()
                 .WithTitle($"{Context.User.Username}#{Context.User.Discriminator} flipped the coin {times} {(times == 1 ? "time" : "times")}")
                 .WithDescription(faceResults)
-                .WithColor(new Color(await _users.GetEmbedColor(Context.User.Id, Context.User.Username)))
-                .WithCurrentTimestamp();
-
-            await ReplyAsync(null, false, builder.Build());
+                .WithColor(new Color(await _users.GetEmbedColor(Context.User.Id, UserUtil.GetFullUsername(Context.User))))
+                .WithCurrentTimestamp()
+                .BuildAndReplyEmbed(Context.Message);
         }
 
         [Command("give")]
@@ -243,13 +240,12 @@ namespace ShionBot.Modules
             // Add money to the transferee
             await _balances.ModifyBalance(user.Id, +balanceTransferred);
 
-            var builder = new EmbedBuilder()
+            await new EmbedBuilder()
                 .WithColor(new Color(await _users.GetEmbedColor(user.Id, UserUtil.GetFullUsername(user))))
                 .WithTitle($"{Context.User.Username} => {user.Username}")
                 .AddField("Amount Transferred", $"{balanceTransferred} :coin:", true)
-                .WithCurrentTimestamp();
-
-            await ReplyAsync(embed: builder.Build());
+                .WithCurrentTimestamp()
+                .BuildAndReplyEmbed(Context.Message);
         }
 
         [Command("balance")]
@@ -259,13 +255,12 @@ namespace ShionBot.Modules
             user ??= (SocketGuildUser)Context.User;
 
             var balance = await _balances.GetBalance(user.Id);
-            var builder = new EmbedBuilder()
+            await new EmbedBuilder()
                 .WithTitle($"{user.Username}'s Current Balance")
                 .WithColor(new Color(await _users.GetEmbedColor(user.Id, UserUtil.GetFullUsername(user))))
                 .AddField("Current Balance", $"{balance} :coin:", true)
-                .WithCurrentTimestamp();
-
-            await ReplyAsync(embed: builder.Build());
+                .WithCurrentTimestamp()
+                .BuildAndReplyEmbed(Context.Message);
         }
     }
 }

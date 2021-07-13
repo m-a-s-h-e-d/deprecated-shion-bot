@@ -92,6 +92,56 @@ namespace ShionBot.Modules
                 .BuildAndReplyEmbed(Context.Message);
         }
 
+        [Command("rep")]
+        public async Task RepAsync([Remainder] SocketGuildUser user = null)
+        {
+            var lastRep = await _users.GetLastRep(Context.User.Id, UserUtil.GetFullUsername(Context.User));
+
+            var now = DateTime.Now;
+
+            if (!TimerUtil.CheckValidDaily(now, lastRep))
+            {
+                TimeSpan? span = TimerUtil.GetTimeDifference(now, lastRep);
+                if (span == null)
+                    throw new ArgumentException("An unexpected null error has occurred!");
+                TimeSpan differenceSpan = new TimeSpan(23, 0, 0).Subtract(span.Value);
+
+                await new EmbedBuilder()
+                    .WithTitle("You need to wait to give your next rep!")
+                    .AddField("Time remaining", TimerUtil.FormattedSpan(differenceSpan), true)
+                    .WithColor(new Color(await _users.GetEmbedColor(Context.User.Id, UserUtil.GetFullUsername(user))))
+                    .WithCurrentTimestamp()
+                    .BuildAndReplyEmbed(Context.Message);
+                return;
+            }
+
+            user ??= (SocketGuildUser)Context.User;
+
+            if (user == null)
+                throw new ArgumentException("No user was specified.");
+            if (user.Id == Context.User.Id)
+            {
+                await new EmbedBuilder()
+                    .WithTitle($"{user.Username}'s Reputation Count")
+                    .AddField("Reputation", $"{_users.GetRepCount(user.Id, UserUtil.GetFullUsername(user))} 🔼", true)
+                    .WithColor(new Color(await _users.GetEmbedColor(user.Id, UserUtil.GetFullUsername(user))))
+                    .WithCurrentTimestamp()
+                    .BuildAndReplyEmbed(Context.Message);
+                return;
+            }
+
+            await _users.ModifyRep(user.Id, 1, UserUtil.GetFullUsername(user));
+            await _users.ModifyLastRep(Context.User.Id, now, UserUtil.GetFullUsername(user));
+
+            await new EmbedBuilder()
+                .WithTitle($"{Context.User.Username} => {user.Username}")
+                .WithDescription($"{Context.User.Username} repped {user.Username}!")
+                .AddField("New rep count", $"{_users.GetRepCount(user.Id, UserUtil.GetFullUsername(user))} 🔼", true)
+                .WithColor(new Color(await _users.GetEmbedColor(user.Id, UserUtil.GetFullUsername(user))))
+                .WithCurrentTimestamp()
+                .BuildAndReplyEmbed(Context.Message);
+        }
+
         [Command("status")]
         public async Task Status([Remainder] SocketGuildUser user = null)
         {
