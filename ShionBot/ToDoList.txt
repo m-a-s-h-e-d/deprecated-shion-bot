@@ -4,6 +4,7 @@
 
 Utilities to implement
 - InputValidator classes (bet amount / input usernames and @everyone)
+	- Bet amount validator
 - Precondition for daily timer
 - 
 
