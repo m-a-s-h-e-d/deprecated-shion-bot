@@ -1,7 +1,5 @@
 ﻿Commands to implement
 - help (IMPORTANT BUT I AM TOO LAZY)
-- rep
-- repcount
 - 
 
 Utilities to implement
