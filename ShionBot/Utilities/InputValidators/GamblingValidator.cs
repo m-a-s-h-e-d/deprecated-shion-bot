@@ -12,5 +12,7 @@ namespace ShionBot.Utilities.Validators
         public static readonly double HalfPercent = 0.5;
         public static readonly double QuarterPercent = 0.25;
 
+        // Handle math functions through various methods to check input
+
     }
 }
