@@ -45,7 +45,7 @@ namespace ShionBot.Modules
         public async Task GetLeaderboardAsync(string type, string view = "")
         {
             // This is so god damn ugly what the hell.
-            string invalidParameterMsg = "Invalid parameter was given. (e.g: leaderboard {balance | level} {server | global})";
+            const string invalidParameterMsg = "Invalid parameter was given. (e.g: leaderboard {balance | level} {server | global})";
             string specifiedView;
 
             if (view.Equals(""))

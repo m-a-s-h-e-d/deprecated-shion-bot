@@ -146,11 +146,12 @@ namespace ShionBot.Modules
         public async Task Status([Remainder] SocketGuildUser user = null)
         {
             user ??= (SocketGuildUser)Context.User;
+            var activity = user.Activity.Name ?? "Nothing";
 
             await new EmbedBuilder()
                 .WithTitle($"{user.Username}#{user.Discriminator}'s Current Status")
                 .WithThumbnailUrl(user.GetAvatarUrl() ?? user.GetDefaultAvatarUrl())
-                .AddField("Currently", user.Activity.Name, true)
+                .AddField("Currently", activity, true)
                 .WithColor(new Color(await _users.GetEmbedColor(user.Id, UserUtil.GetFullUsername(user))))
                 .WithCurrentTimestamp()
                 .BuildAndSendEmbed(Context.Channel);
