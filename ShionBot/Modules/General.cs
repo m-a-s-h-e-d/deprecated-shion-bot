@@ -206,7 +206,7 @@ namespace ShionBot.Modules
                 .WithColor(_botEmbedColor)
                 .AddField("Created at", Context.Guild.CreatedAt.ToString("MMMM dd, yyyy"), true)
                 .AddField("Member Count", (Context.Guild).MemberCount + " members", true)
-                .AddField("Online Users", (Context.Guild).Users.Where(x => x.Status == UserStatus.Online).Count() + " members", true)
+                .AddField("Online Users", (Context.Guild).Users.Count(x => x.Status == UserStatus.Online) + " members", true)
                 .BuildAndSendEmbed(Context.Channel);
         }
     }

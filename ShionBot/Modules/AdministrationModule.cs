@@ -71,7 +71,7 @@ namespace ShionBot.Modules
         public async Task Purge(int amount)
         {
             var messages = await Context.Channel.GetMessagesAsync(amount + 1).FlattenAsync();
-            await (Context.Channel as SocketTextChannel).DeleteMessagesAsync(messages);
+            await (Context.Channel as SocketTextChannel)?.DeleteMessagesAsync(messages);
 
             var message = await ReplyAsync($"{messages.Count()} messages were deleted.");
             await Task.Delay(2500);

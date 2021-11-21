@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Linq;
+using System.Net;
+using System.Net.Sockets;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -6,11 +9,13 @@ using Discord;
 using Discord.Addons.Hosting;
 using Discord.Addons.Hosting.Util;
 using Discord.Commands;
+using Discord.Rest;
 using Discord.WebSocket;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Schema;
 using Serilog;
+using ShionBot.Utilities;
 
 namespace ShionBot
 {
@@ -41,8 +46,22 @@ namespace ShionBot
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             Client.MessageReceived += HandleMessage;
+            Client.UserVoiceStateUpdated += HandleVoice;
             _commandService.CommandExecuted += CommandExecutedAsync;
             await _commandService.AddModulesAsync(Assembly.GetEntryAssembly(), _provider);
+        }
+
+        private async Task HandleVoice(SocketUser incomingUser, SocketVoiceState previous, SocketVoiceState joined)
+        {
+            Logger.LogInformation($"{incomingUser.Username} : {previous.VoiceChannel?.Name ?? "null"} -> {joined.VoiceChannel?.Name ?? "null"}");
+            if (joined.VoiceChannel?.Name == "Create Private Room")
+            {
+                await VoiceChannelUtil.HandleCreatePrivateRoom(incomingUser, joined.VoiceChannel.Guild);
+            }
+            else if (previous.VoiceChannel != null)
+            {
+                await VoiceChannelUtil.CheckPrivateRoom(previous.VoiceChannel);
+            }
         }
 
         private async Task HandleMessage(SocketMessage incomingMessage)
