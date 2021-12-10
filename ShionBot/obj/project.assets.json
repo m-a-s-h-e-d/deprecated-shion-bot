@@ -2675,6 +2675,7 @@
         "framework": ".NETCoreApp,Version=v5.0",
         "dependencies": {
           "Discord.InteractivityAddon.Labs": "2.4.1-labs-20212511.1",
+          "Discord.Net.Labs": "3.4.9",
           "Microsoft.EntityFrameworkCore": "5.0.7",
           "Microsoft.EntityFrameworkCore.Relational": "5.0.7",
           "Pomelo.EntityFrameworkCore.MySql": "5.0.1"
@@ -8369,7 +8370,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.401\\RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.100\\RuntimeIdentifierGraph.json"
       }
     }
   }
