@@ -53,10 +53,23 @@ namespace ShionBot
 
         private async Task HandleVoice(SocketUser incomingUser, SocketVoiceState previous, SocketVoiceState joined)
         {
-            Logger.LogInformation($"{incomingUser.Username} : {previous.VoiceChannel?.Name ?? "null"} -> {joined.VoiceChannel?.Name ?? "null"}");
+            // For future use and reference
+            // Logger.LogInformation($"{incomingUser.Username} : {previous.VoiceChannel?.Name ?? "null"} -> {joined.VoiceChannel?.Name ?? "null"}");
+
             if (joined.VoiceChannel?.Name == "Create Private Room")
             {
-                await VoiceChannelUtil.HandleCreatePrivateRoom(incomingUser, joined.VoiceChannel.Guild);
+                try
+                {
+                    await VoiceChannelUtil.HandleCreatePrivateRoom(incomingUser, joined.VoiceChannel.Guild);
+                    Logger.LogInformation(
+                        $"Created new voice channel for {incomingUser.Username} in guild {joined.VoiceChannel.Guild.Name}.");
+                }
+                catch (ArgumentNullException)
+                {
+                    Logger.LogError(
+                        $"Unable to create new voice channel for {incomingUser.Username} in guild {joined.VoiceChannel.Guild.Name}.\n" +
+                        $"Likely missing the Private Rooms category.");
+                }
             }
             else if (previous.VoiceChannel != null)
             {

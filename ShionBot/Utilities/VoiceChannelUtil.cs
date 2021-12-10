@@ -21,6 +21,7 @@ namespace ShionBot.Utilities
 {
     public class VoiceChannelUtil
     {
+        // Yes I will eventually add this to the database instead of using a hashset
         private static HashSet<ulong> _channelSet = new();
 
         public static async Task HandleCreatePrivateRoom(SocketUser incomingUser, SocketGuild targetGuild)
@@ -50,7 +51,13 @@ namespace ShionBot.Utilities
         private static async Task<RestVoiceChannel> CreateNewPrivateChannel(IUser user, SocketGuild guild)
         {
             var newChannelName = $"{user.Username}'s room";
-            return await guild.CreateVoiceChannelAsync(newChannelName);
+            var categoryId = guild.CategoryChannels.FirstOrDefault(category => category.Name.Equals("Private Rooms"))?.Id;
+            if (categoryId == null)
+            {
+                throw new ArgumentNullException();
+            }
+            var newChannel = await guild.CreateVoiceChannelAsync(newChannelName, x => x.CategoryId = categoryId);
+            return newChannel;
         }
 
         private static async Task AddPrivateChannelPerms(IUser user, RestGuildChannel channel)

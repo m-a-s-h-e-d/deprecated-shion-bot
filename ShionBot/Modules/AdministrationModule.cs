@@ -8,6 +8,7 @@ using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Scripting;
 using Microsoft.CodeAnalysis.Scripting;
 using Microsoft.Extensions.Hosting;
@@ -130,6 +131,14 @@ namespace ShionBot.Modules
 
             _ = _host.StopAsync();
         }
+
+        [Command("s-eval", RunMode = RunMode.Async)]
+        public async Task SilentEval([Remainder] string code)
+        {
+            await Context.Message.DeleteAsync();
+            await EvaluateAsync(code);
+        }
+
 
         [Command("eval", RunMode = RunMode.Async)]
         public async Task EvaluateAsync([Remainder] string code)
