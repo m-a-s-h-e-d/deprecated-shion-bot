@@ -7,6 +7,7 @@ using Discord;
 using Discord.Commands;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Shion.Core.Preconditions;
 using Shion.Modules.Utility;
 
 namespace Shion.Modules.Administration
@@ -24,16 +25,14 @@ namespace Shion.Modules.Administration
         }
 
         [Command("shutdown")]
+        [RequireBotOwner]
         public async Task Stop()
         {
-            if (Context.User.Id != 285106328790237195)
-            {
-                return;
-            }
             _ = _host.StopAsync();
         }
 
         [Command("log")]
+        [RequireBotOwner]
         public Task TestLogs()
         {
             _logger.LogTrace("This is a trace log");
@@ -44,7 +43,7 @@ namespace Shion.Modules.Administration
             _logger.LogCritical(new InvalidOperationException("Invalid Operation"), "This is a critical load with exception");
 
             _logger.Log(GetLogLevel(LogSeverity.Error), "Error logged from a Discord LogSeverity.Error");
-            _logger.Log(GetLogLevel(LogSeverity.Info), "Information logged from Discord LogSeverity.Info ");
+            _logger.Log(GetLogLevel(LogSeverity.Info), "Information logged from Discord LogSeverity.Info");
 
             return Task.CompletedTask;
         }
