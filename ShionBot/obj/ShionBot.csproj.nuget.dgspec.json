@@ -44,6 +44,10 @@
         "net5.0": {
           "targetAlias": "net5.0",
           "dependencies": {
+            "Discord.InteractivityAddon.Labs": {
+              "target": "Package",
+              "version": "[2.4.1-labs-20212511.1, )"
+            },
             "Microsoft.EntityFrameworkCore": {
               "target": "Package",
               "version": "[5.0.7, )"
@@ -126,25 +130,13 @@
         "net5.0": {
           "targetAlias": "netcoreapp5",
           "dependencies": {
-            "Discord.Addons.Hosting": {
+            "Discord.InteractivityAddon.Labs": {
               "target": "Package",
-              "version": "[4.0.2, )"
+              "version": "[2.4.1-labs-20212511.1, )"
             },
-            "Discord.Net": {
+            "Discord.Net.Labs": {
               "target": "Package",
-              "version": "[2.4.0, )"
-            },
-            "Discord.Net.Commands": {
-              "target": "Package",
-              "version": "[2.4.0, )"
-            },
-            "Discord.Net.Core": {
-              "target": "Package",
-              "version": "[2.4.0, )"
-            },
-            "Discord.Net.WebSocket": {
-              "target": "Package",
-              "version": "[2.4.0, )"
+              "version": "[3.4.9, )"
             },
             "Microsoft.CodeAnalysis": {
               "target": "Package",
