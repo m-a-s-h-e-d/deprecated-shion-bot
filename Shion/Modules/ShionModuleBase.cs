@@ -14,15 +14,7 @@ namespace Shion.Modules
 {
     public abstract class ShionModuleBase : ModuleBase<ShardedCommandContext>
     {
-        [SuppressMessage("StyleCop.CSharp.MaintainabilityRules", "SA1401:FieldsMustBePrivate", Justification = "Will keep as protected for subclass modules")]
-        protected readonly ILogger<ShionModuleBase> logger;
-
-        protected ShionModuleBase(ILogger<ShionModuleBase> logger)
-        {
-            this.logger = logger;
-        }
-
-        public EmbedBuilder CreateEmbedBuilder(EmbedInfo embedInfo)
+        public static EmbedBuilder CreateEmbedBuilder(EmbedInfo embedInfo)
         {
             var builder = new EmbedBuilder()
                 .WithColor(embedInfo.Color)

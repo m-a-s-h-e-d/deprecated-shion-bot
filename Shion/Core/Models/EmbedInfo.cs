@@ -1,7 +1,7 @@
-﻿namespace Shion.Core.Structures
-{
-    using Discord;
+﻿using Discord;
 
+namespace Shion.Core.Structures
+{
     public struct EmbedInfo
     {
         public EmbedInfo(Color color, string? author, string? title, string? description, string? footer, DateTimeOffset? timestamp)
@@ -22,7 +22,7 @@
         }
 
         public Color Color { get; init; }
-        
+
         public string? Author { get; init; }
 
         public string? Title { get; init; }

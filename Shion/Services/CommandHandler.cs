@@ -1,16 +1,16 @@
-﻿namespace Shion.Services
-{
-    using System;
-    using System.Reflection;
-    using System.Threading.Tasks;
-    using Discord;
-    using Discord.Addons.Hosting;
-    using Discord.Commands;
-    using Discord.WebSocket;
-    using Microsoft.Extensions.Configuration;
-    using Microsoft.Extensions.DependencyInjection;
-    using Microsoft.Extensions.Logging;
+﻿using System;
+using System.Reflection;
+using System.Threading.Tasks;
+using Discord;
+using Discord.Addons.Hosting;
+using Discord.Commands;
+using Discord.WebSocket;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
+namespace Shion.Services
+{
     public class CommandHandler : DiscordShardedClientService
     {
         private readonly IServiceProvider provider;
@@ -74,7 +74,7 @@
 
             // the command failed, let's notify the user that something happened.
             this.Logger.LogError("Failed to execute {command}: {error}", command.Value.Name, result.ToString());
-            await context.Channel.SendMessageAsync($"Error: {result.ToString()}");
+            await context.Channel.SendMessageAsync($"Error: {result}");
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -87,7 +87,7 @@
 
         private Task LogAsync(LogMessage log)
         {
-            this.Logger.LogInformation(log.ToString());
+            this.Logger.LogInformation("Logged: {logMsg}", log.ToString());
 
             return Task.CompletedTask;
         }

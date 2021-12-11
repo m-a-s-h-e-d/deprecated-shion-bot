@@ -1,16 +1,16 @@
-﻿namespace Shion.Services
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
-    using System.Threading.Tasks;
-    using Discord;
-    using Discord.Addons.Hosting;
-    using Discord.Addons.Hosting.Util;
-    using Discord.WebSocket;
-    using Microsoft.Extensions.Logging;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Discord;
+using Discord.Addons.Hosting;
+using Discord.Addons.Hosting.Util;
+using Discord.WebSocket;
+using Microsoft.Extensions.Logging;
 
+namespace Shion.Services
+{
     public class BotStatusService : DiscordShardedClientService
     {
         public BotStatusService(DiscordShardedClient client, ILogger<BotStatusService> logger)

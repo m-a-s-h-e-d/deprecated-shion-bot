@@ -23,11 +23,12 @@ namespace Shion.Modules.Administration
     {
         // You can inject the host. This is useful if you want to shutdown the host via a command, but be careful with it.
         private readonly IHost host;
+        private readonly ILogger<AdministrationModule> logger;
 
         public AdministrationModule(IHost host, ILogger<AdministrationModule> logger)
-            : base(logger)
         {
             this.host = host;
+            this.logger = logger;
         }
 
         [Command("purge")]
@@ -37,7 +38,7 @@ namespace Shion.Modules.Administration
             var messages = await this.Context.Channel.GetMessagesAsync(amount + 1).FlattenAsync();
             await (this.Context.Channel as SocketTextChannel)?.DeleteMessagesAsync(messages);
 
-            var message = await this.CreateEmbedBuilder(new EmbedInfo(
+            var message = await CreateEmbedBuilder(new EmbedInfo(
                 ShionOptions.EmbedColor,
                 null,
                 "Purge Command",
