@@ -34,6 +34,7 @@
         private static IServiceCollection AddToolsCollection(this IServiceCollection services)
         {
             return services;
+
             // services.AddHostedService<SchedulingService>(); //TODO This should be a BackgroundService, does not need access to Discord Client (most likely)
         }
     }

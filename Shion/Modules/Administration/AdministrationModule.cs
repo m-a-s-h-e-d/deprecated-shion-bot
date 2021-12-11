@@ -1,47 +1,50 @@
-﻿namespace Shion.Modules.Administration
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
-    using System.Threading.Tasks;
-    using System.Transactions;
-    using Discord;
-    using Discord.Commands;
-    using Discord.WebSocket;
-    using Microsoft.Extensions.Hosting;
-    using Microsoft.Extensions.Logging;
-    using Core.Common.BotOptions;
-    using Core.Extensions;
-    using Core.Preconditions;
-    using Core.Structures;
-    using Modules.Utility;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Text;
+using System.Threading.Tasks;
+using System.Transactions;
+using Discord;
+using Discord.Commands;
+using Discord.WebSocket;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Shion.Core.Common.BotOptions;
+using Shion.Core.Extensions;
+using Shion.Core.Preconditions;
+using Shion.Core.Structures;
+using Shion.Modules;
+using Shion.Modules.Utility;
 
+namespace Shion.Modules.Administration
+{
     public class AdministrationModule : ShionModuleBase
     {
-        //You can inject the host. This is useful if you want to shutdown the host via a command, but be careful with it.
-        private readonly IHost _host;
+        // You can inject the host. This is useful if you want to shutdown the host via a command, but be careful with it.
+        private readonly IHost host;
 
-        public AdministrationModule(IHost host, ILogger<AdministrationModule> logger) : base(logger)
+        public AdministrationModule(IHost host, ILogger<AdministrationModule> logger)
+            : base(logger)
         {
-            _host = host;
+            this.host = host;
         }
 
         [Command("purge")]
         [RequireUserPermission(GuildPermission.ManageMessages)]
         public async Task Purge(int amount)
         {
-            var messages = await Context.Channel.GetMessagesAsync(amount + 1).FlattenAsync();
-            await (Context.Channel as SocketTextChannel)?.DeleteMessagesAsync(messages);
+            var messages = await this.Context.Channel.GetMessagesAsync(amount + 1).FlattenAsync();
+            await (this.Context.Channel as SocketTextChannel)?.DeleteMessagesAsync(messages);
 
-            var message = await CreateEmbedBuilder(new EmbedInfo(
+            var message = await this.CreateEmbedBuilder(new EmbedInfo(
                 ShionOptions.EmbedColor,
                 null,
                 "Purge Command",
                 $"{messages.Count()} messages were deleted.",
                 null,
-                null
-            )).BuildAndSendEmbed(Context.Channel);
+                null))
+                .BuildAndSendEmbed(this.Context.Channel);
             await Task.Delay(2500);
             await message.DeleteAsync();
         }
@@ -50,7 +53,7 @@
         [RequireBotOwner]
         public Task Stop()
         {
-            _ = _host.StopAsync();
+            _ = this.host.StopAsync();
             return Task.CompletedTask;
         }
 
@@ -58,15 +61,15 @@
         [RequireBotOwner]
         public Task TestLogs()
         {
-            _logger.LogTrace("This is a trace log");
-            _logger.LogDebug("This is a debug log");
-            _logger.LogInformation("This is an information log");
-            _logger.LogWarning("This is a warning log");
-            _logger.LogError(new InvalidOperationException("Invalid Operation"), "This is a error log with exception");
-            _logger.LogCritical(new InvalidOperationException("Invalid Operation"), "This is a critical load with exception");
+            this.logger.LogTrace("This is a trace log");
+            this.logger.LogDebug("This is a debug log");
+            this.logger.LogInformation("This is an information log");
+            this.logger.LogWarning("This is a warning log");
+            this.logger.LogError(new InvalidOperationException("Invalid Operation"), "This is a error log with exception");
+            this.logger.LogCritical(new InvalidOperationException("Invalid Operation"), "This is a critical load with exception");
 
-            _logger.Log(GetLogLevel(LogSeverity.Error), "Error logged from a Discord LogSeverity.Error");
-            _logger.Log(GetLogLevel(LogSeverity.Info), "Information logged from Discord LogSeverity.Info");
+            this.logger.Log(GetLogLevel(LogSeverity.Error), "Error logged from a Discord LogSeverity.Error");
+            this.logger.Log(GetLogLevel(LogSeverity.Info), "Information logged from Discord LogSeverity.Info");
 
             return Task.CompletedTask;
         }

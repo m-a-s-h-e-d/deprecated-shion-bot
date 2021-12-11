@@ -1,16 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Discord.Commands;
-using Discord.WebSocket;
-
-namespace Shion.Core.Preconditions
+﻿namespace Shion.Core.Preconditions
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+    using System.Threading.Tasks;
+    using Discord.Commands;
+    using Discord.WebSocket;
+
     public class RequireBotOwnerAttribute : PreconditionAttribute
     {
-        public override Task<PreconditionResult> CheckPermissionsAsync(ICommandContext context, CommandInfo command,
+        public override Task<PreconditionResult> CheckPermissionsAsync(
+            ICommandContext context,
+            CommandInfo command,
             IServiceProvider provider)
         {
             if (context.User is SocketGuildUser gUser)

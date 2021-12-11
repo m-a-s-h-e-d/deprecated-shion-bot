@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,11 +14,12 @@ namespace Shion.Modules
 {
     public abstract class ShionModuleBase : ModuleBase<ShardedCommandContext>
     {
-        protected readonly ILogger<ShionModuleBase> _logger;
+        [SuppressMessage("StyleCop.CSharp.MaintainabilityRules", "SA1401:FieldsMustBePrivate", Justification = "Will keep as protected for subclass modules")]
+        protected readonly ILogger<ShionModuleBase> logger;
 
         protected ShionModuleBase(ILogger<ShionModuleBase> logger)
         {
-            _logger = logger;
+            this.logger = logger;
         }
 
         public EmbedBuilder CreateEmbedBuilder(EmbedInfo embedInfo)
