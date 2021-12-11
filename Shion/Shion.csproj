@@ -18,6 +18,10 @@
     <PackageReference Include="Serilog.Extensions.Hosting" Version="4.2.0" />
     <PackageReference Include="Serilog.Sinks.Console" Version="4.0.1" />
     <PackageReference Include="Serilog.Sinks.Debug" Version="2.0.0" />
+    <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="Victoria" Version="5.2.4" />
   </ItemGroup>
 
@@ -31,6 +35,10 @@
     <Folder Include="Modules\Moderation\" />
     <Folder Include="Modules\Fun\" />
     <Folder Include="Modules\Media\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\.editorconfig" Link=".editorconfig" />
   </ItemGroup>
 
 </Project>

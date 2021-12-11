@@ -1,19 +1,19 @@
-﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
-using Shion.Services;
-using Discord;
-using Discord.Addons.Hosting;
-using Discord.Commands;
-using Discord.WebSocket;
-using Microsoft.AspNetCore.Hosting.Internal;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Serilog;
-using Serilog.Events;
-
-namespace Shion
+﻿namespace Shion
 {
+    using System;
+    using System.Threading;
+    using System.Threading.Tasks;
+    using Services;
+    using Discord;
+    using Discord.Addons.Hosting;
+    using Discord.Commands;
+    using Discord.WebSocket;
+    using Microsoft.AspNetCore.Hosting.Internal;
+    using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.Extensions.Hosting;
+    using Serilog;
+    using Serilog.Events;
+
     public class Shion
     {
         public static async Task Main(string[] args)

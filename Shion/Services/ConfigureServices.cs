@@ -1,12 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
-
-namespace Shion.Services
+﻿namespace Shion.Services
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+    using System.Threading.Tasks;
+    using Microsoft.Extensions.DependencyInjection;
+
     public static class ConfigureServices
     {
         public static void RegisterServices(IServiceCollection services)

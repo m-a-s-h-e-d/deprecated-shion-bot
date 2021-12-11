@@ -1,32 +1,30 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Discord;
-using Discord.Commands;
-using Discord.WebSocket;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using Shion.Core.Common.BotOptions;
-using Shion.Core.Common.Embed;
-using Shion.Core.Extensions;
-using Shion.Core.Preconditions;
-using Shion.Core.Structures;
-using Shion.Modules.Utility;
-
-namespace Shion.Modules.Administration
+﻿namespace Shion.Modules.Administration
 {
-    public class AdministrationModule : ModuleBase<ShardedCommandContext>
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+    using System.Threading.Tasks;
+    using System.Transactions;
+    using Discord;
+    using Discord.Commands;
+    using Discord.WebSocket;
+    using Microsoft.Extensions.Hosting;
+    using Microsoft.Extensions.Logging;
+    using Core.Common.BotOptions;
+    using Core.Extensions;
+    using Core.Preconditions;
+    using Core.Structures;
+    using Modules.Utility;
+
+    public class AdministrationModule : ShionModuleBase
     {
-        private readonly ILogger<AdministrationModule> _logger;
         //You can inject the host. This is useful if you want to shutdown the host via a command, but be careful with it.
         private readonly IHost _host;
 
-        public AdministrationModule(IHost host, ILogger<AdministrationModule> logger)
+        public AdministrationModule(IHost host, ILogger<AdministrationModule> logger) : base(logger)
         {
             _host = host;
-            _logger = logger;
         }
 
         [Command("purge")]
@@ -36,11 +34,12 @@ namespace Shion.Modules.Administration
             var messages = await Context.Channel.GetMessagesAsync(amount + 1).FlattenAsync();
             await (Context.Channel as SocketTextChannel)?.DeleteMessagesAsync(messages);
 
-            var message = await EmbedFactory.CreateEmbedBuilder(new EmbedInfo(
+            var message = await CreateEmbedBuilder(new EmbedInfo(
                 ShionOptions.EmbedColor,
                 null,
                 "Purge Command",
                 $"{messages.Count()} messages were deleted.",
+                null,
                 null
             )).BuildAndSendEmbed(Context.Channel);
             await Task.Delay(2500);
