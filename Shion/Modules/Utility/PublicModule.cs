@@ -4,6 +4,9 @@ using Discord;
 using Discord.Commands;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Shion.Core.Common.Embed;
+using Shion.Core.Extensions;
+using Shion.Core.Structures;
 
 namespace Shion.Modules.Utility
 {
@@ -22,7 +25,13 @@ namespace Shion.Modules.Utility
         public async Task PingAsync()
         {
             _logger.LogInformation($"User {Context.User.Username} used the ping command!");
-            await ReplyAsync("pong!");
+            await EmbedFactory.CreateEmbedBuilder(new EmbedInfo(
+                new Color(1, 2, 3),
+                null,
+                "Ping Command",
+                $"Responded in {Context.Client.Latency}ms",
+                null
+            )).BuildAndReplyEmbed(Context.Message);
         }
 
         [Command("info")]

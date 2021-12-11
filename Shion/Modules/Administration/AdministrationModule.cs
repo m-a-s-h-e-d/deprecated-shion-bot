@@ -26,9 +26,10 @@ namespace Shion.Modules.Administration
 
         [Command("shutdown")]
         [RequireBotOwner]
-        public async Task Stop()
+        public Task Stop()
         {
             _ = _host.StopAsync();
+            return Task.CompletedTask;
         }
 
         [Command("log")]

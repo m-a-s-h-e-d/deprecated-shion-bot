@@ -6,6 +6,7 @@ using Discord;
 using Discord.Addons.Hosting;
 using Discord.Commands;
 using Discord.WebSocket;
+using Microsoft.AspNetCore.Hosting.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serilog;
@@ -13,12 +14,9 @@ using Serilog.Events;
 
 namespace Shion
 {
-    // This is a minimal example of using Discord.Net's Sharded Client
-    // The provided DiscordShardedClient class simplifies having multiple
-    // DiscordSocketClient instances (or shards) to serve a large number of guilds.
     public class Shion
     {
-        public static int Main(string[] args)
+        public static async Task Main(string[] args)
         {
             //Log is available everywhere, useful for places where it isn't practical to use ILogger injection
             Log.Logger = new LoggerConfiguration()
@@ -31,14 +29,16 @@ namespace Shion
             {
                 // Attempt to start the client
                 Log.Information("Starting host...");
-                CreateHostBuilder(args).Build().Run();
-                return 0;
+                var host = CreateHostBuilder(args).Build();
+                using (host)
+                {
+                    await host.RunAsync();
+                }
             }
             catch (Exception ex)
             {
                 // Failed to start the client
                 Log.Fatal(ex, "Host terminated unexpectedly");
-                return 1;
             }
             finally
             {
@@ -67,6 +67,9 @@ namespace Shion
 
                     // Retrive BOT_TOKEN from environment variables
                     config.Token = Environment.GetEnvironmentVariable("BOT_TOKEN") ?? "";
+
+                    //Use this to configure a custom format for Client/CommandService logging if needed. The default is below and should be suitable for Serilog usage
+                    config.LogFormat = (message, exception) => $"{message.Source}: {message.Message}";
                 })
                 .UseCommandService((context, config) =>
                 {
@@ -77,11 +80,8 @@ namespace Shion
                 })
                 .ConfigureServices((context, services) =>
                 {
-                    // Add additional services here.
-                    services.AddHostedService<CommandHandler>();
-                    services.AddHostedService<BotStatusService>();
-                    // services.AddHostedService<LongRunningService>();
-                    // services.AddHostedService<SchedulingService>(); //TODO This should be a BackgroundService, does not need access to Discord Client (most likely)
-                });
+                    ConfigureServices.RegisterServices(services);
+                })
+                .UseConsoleLifetime();
     }
 }

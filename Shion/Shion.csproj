@@ -22,6 +22,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Core\Enums\" />
+    <Folder Include="Core\Interfaces\" />
+    <Folder Include="Core\Helpers\" />
+    <Folder Include="Core\Utilities\" />
+    <Folder Include="Core\Models\" />
     <Folder Include="Core\TypeReaders\" />
     <Folder Include="Modules\Moderation\" />
     <Folder Include="Modules\Fun\" />
