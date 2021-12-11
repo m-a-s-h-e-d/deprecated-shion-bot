@@ -5,9 +5,14 @@ using System.Text;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
+using Discord.WebSocket;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Shion.Core.Common.BotOptions;
+using Shion.Core.Common.Embed;
+using Shion.Core.Extensions;
 using Shion.Core.Preconditions;
+using Shion.Core.Structures;
 using Shion.Modules.Utility;
 
 namespace Shion.Modules.Administration
@@ -22,6 +27,24 @@ namespace Shion.Modules.Administration
         {
             _host = host;
             _logger = logger;
+        }
+
+        [Command("purge")]
+        [RequireUserPermission(GuildPermission.ManageMessages)]
+        public async Task Purge(int amount)
+        {
+            var messages = await Context.Channel.GetMessagesAsync(amount + 1).FlattenAsync();
+            await (Context.Channel as SocketTextChannel)?.DeleteMessagesAsync(messages);
+
+            var message = await EmbedFactory.CreateEmbedBuilder(new EmbedInfo(
+                ShionOptions.EmbedColor,
+                null,
+                "Purge Command",
+                $"{messages.Count()} messages were deleted.",
+                null
+            )).BuildAndSendEmbed(Context.Channel);
+            await Task.Delay(2500);
+            await message.DeleteAsync();
         }
 
         [Command("shutdown")]
