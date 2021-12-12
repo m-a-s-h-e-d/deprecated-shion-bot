@@ -8,15 +8,27 @@ using Discord.WebSocket;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Shion.Core.Common.BotOptions;
 
 namespace Shion.Services
 {
+    /// <summary>
+    /// The command handler service.
+    /// </summary>
     public class CommandHandler : DiscordShardedClientService
     {
         private readonly IServiceProvider provider;
         private readonly CommandService commandService;
         private readonly IConfiguration config;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CommandHandler"/> class.
+        /// </summary>
+        /// <param name="client">The <see cref="DiscordShardedClient"/> to be passed.</param>
+        /// <param name="logger">The <see cref="ILogger"/> to be passed.</param>
+        /// <param name="provider">The <see cref="IServiceProvider"/> to be passed.</param>
+        /// <param name="commandService">The <see cref="CommandService"/> to be passed.</param>
+        /// <param name="config">The <see cref="IConfiguration"/> to be passed.</param>
         public CommandHandler(DiscordShardedClient client, ILogger<CommandHandler> logger, IServiceProvider provider, CommandService commandService, IConfiguration config)
             : base(client, logger)
         {
@@ -25,6 +37,11 @@ namespace Shion.Services
             this.config = config;
         }
 
+        /// <summary>
+        /// Handles messages received from the client.
+        /// </summary>
+        /// <param name="incomingMessage">The <see cref="SocketMessage"/> to be passed.</param>
+        /// <returns>A <see cref="Task"/> representing the results of the asynchronous operation.</returns>
         public async Task MessageReceivedAsync(SocketMessage incomingMessage)
         {
             // Ignore system messages, or messages from other bots
@@ -56,6 +73,13 @@ namespace Shion.Services
             await this.commandService.ExecuteAsync(context, argPos, this.provider);
         }
 
+        /// <summary>
+        /// Handles commands executed and provides error logs and user error responses.
+        /// </summary>
+        /// <param name="command">The <see cref="CommandInfo"/> to be passed.</param>
+        /// <param name="context">The <see cref="ICommandContext"/> to be passed.</param>
+        /// <param name="result">The <see cref="IResult"/> to be passed.</param>
+        /// <returns>A <see cref="Task"/> representing the results of the asynchronous operation.</returns>
         public async Task CommandExecutedAsync(Optional<CommandInfo> command, ICommandContext context, IResult result)
         {
             this.Logger.LogInformation("User {user} attempted to use command {command}", context.User, command.Value.Name);
@@ -74,22 +98,33 @@ namespace Shion.Services
 
             // the command failed, let's notify the user that something happened.
             this.Logger.LogError("Failed to execute {command}: {error}", command.Value.Name, result.ToString());
-            await context.Channel.SendMessageAsync($"Error: {result}");
+            var errorEmbed = CreateErrorEmbedBuilder(command, result);
+            await context.Channel.SendMessageAsync(embed: errorEmbed.Build());
         }
 
+        /// <summary>
+        /// Hooks events with corresponding methods for executing commands.
+        /// </summary>
+        /// <param name="stoppingToken">The <see cref="CancellationToken"/> to be passed.</param>
+        /// <returns>A <see cref="Task"/> representing the results of the asynchronous operation.</returns>
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             this.Client.MessageReceived += this.MessageReceivedAsync;
-            this.commandService.Log += this.LogAsync;
             this.commandService.CommandExecuted += this.CommandExecutedAsync;
             await this.commandService.AddModulesAsync(Assembly.GetEntryAssembly(), this.provider);
         }
 
-        private Task LogAsync(LogMessage log)
-        {
-            this.Logger.LogInformation("Logged: {logMsg}", log.ToString());
-
-            return Task.CompletedTask;
-        }
+        /// <summary>
+        /// Configures settings based on the passed <see cref="IResult"/> and returns a new <see cref="EmbedBuilder"/>.
+        /// </summary>
+        /// <param name="command">The <see cref="CommandInfo"/> to be passed.</param>
+        /// <param name="result">The <see cref="IResult"/> to be passed.</param>
+        /// <returns>A configured <see cref="EmbedBuilder"/> representing a discord embed builder.</returns>
+        private static EmbedBuilder CreateErrorEmbedBuilder(Optional<CommandInfo> command, IResult result) =>
+            new EmbedBuilder()
+                .WithColor(ShionOptions.EmbedColor)
+                .WithTitle("Failed to execute command")
+                .WithDescription($"The command `{command.Value.Name}` could not be completed.\n**Error**: `{result.ErrorReason}`")
+                .WithCurrentTimestamp();
     }
 }

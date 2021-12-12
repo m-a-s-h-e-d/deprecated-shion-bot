@@ -35,8 +35,14 @@ namespace Shion.Modules.Administration
         [RequireUserPermission(GuildPermission.ManageMessages)]
         public async Task Purge(int amount)
         {
+            if (amount <= 0)
+            {
+                throw new Exception("You must pass a value greater than 0.");
+            }
+
             var messages = await this.Context.Channel.GetMessagesAsync(amount + 1).FlattenAsync();
-            await (this.Context.Channel as SocketTextChannel)?.DeleteMessagesAsync(messages);
+            var channel = (SocketTextChannel)this.Context.Channel;
+            await channel.DeleteMessagesAsync(messages);
 
             var message = await CreateEmbedBuilder(new EmbedInfo(
                 ShionOptions.EmbedColor,

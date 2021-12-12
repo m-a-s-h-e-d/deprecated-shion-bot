@@ -12,8 +12,16 @@ using Shion.Modules.Utility;
 
 namespace Shion.Modules
 {
+    /// <summary>
+    /// The base module with common methods used in other modules.
+    /// </summary>
     public abstract class ShionModuleBase : ModuleBase<ShardedCommandContext>
     {
+        /// <summary>
+        /// Configures settings based on the passed <see cref="EmbedInfo"/> and returns a new <see cref="EmbedBuilder"/>.
+        /// </summary>
+        /// <param name="embedInfo">The <see cref="EmbedInfo"/> to be passed.</param>
+        /// <returns>A configured <see cref="EmbedBuilder"/> representing a discord embed builder.</returns>
         public static EmbedBuilder CreateEmbedBuilder(EmbedInfo embedInfo)
         {
             var builder = new EmbedBuilder()

@@ -15,8 +15,16 @@ using Shion.Services;
 
 namespace Shion
 {
+    /// <summary>
+    /// The entry point of the bot.
+    /// </summary>
     public class Shion
     {
+        /// <summary>
+        /// An asynchronous main method for initializing the bot.
+        /// </summary>
+        /// <param name="args">The <see cref="string"/> arguments to be passed.</param>
+        /// <returns>A <see cref="Task"/> representing the results of the asynchronous operation.</returns>
         public static async Task Main(string[] args)
         {
             // Log is available everywhere, useful for places where it isn't practical to use ILogger injection
@@ -48,6 +56,11 @@ namespace Shion
             }
         }
 
+        /// <summary>
+        /// Configures and returns a new sharded discord bot builder object.
+        /// </summary>
+        /// <param name="args">The <see cref="string"/> arguments to be passed.</param>
+        /// <returns>A configured <see cref="IHostBuilder"/> representing a discord sharded host builder.</returns>
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder()
                 .UseSerilog()
@@ -67,13 +80,13 @@ namespace Shion
 
                         // Number of messages being cached at a time.
                         MessageCacheSize = 200,
+
+                        // Gateway intentions
+                        GatewayIntents = GatewayIntents.All,
                     };
 
                     // Retrive BOT_TOKEN from environment variables
                     config.Token = Environment.GetEnvironmentVariable("BOT_TOKEN") ?? string.Empty;
-
-                    // Use this to configure a custom format for Client/CommandService logging if needed. The default is below and should be suitable for Serilog usage
-                    config.LogFormat = (message, exception) => $"{message.Source}: {message.Message}";
                 })
                 .UseCommandService((context, config) =>
                 {
