@@ -13,7 +13,7 @@ using Shion.Core.Common.BotOptions;
 namespace Shion.Services
 {
     /// <summary>
-    /// The command handler service.
+    /// The class responsible for handling the commands and various events.
     /// </summary>
     public class CommandHandler : DiscordShardedClientService
     {
@@ -24,11 +24,11 @@ namespace Shion.Services
         /// <summary>
         /// Initializes a new instance of the <see cref="CommandHandler"/> class.
         /// </summary>
-        /// <param name="client">The <see cref="DiscordShardedClient"/> to be passed.</param>
-        /// <param name="logger">The <see cref="ILogger"/> to be passed.</param>
-        /// <param name="provider">The <see cref="IServiceProvider"/> to be passed.</param>
-        /// <param name="commandService">The <see cref="CommandService"/> to be passed.</param>
-        /// <param name="config">The <see cref="IConfiguration"/> to be passed.</param>
+        /// <param name="client">The <see cref="DiscordShardedClient"/> that should be injected.</param>
+        /// <param name="logger">The <see cref="ILogger"/> that should be injected.</param>
+        /// <param name="provider">The <see cref="IServiceProvider"/> that should be injected.</param>
+        /// <param name="commandService">The <see cref="CommandService"/> that should be injected.</param>
+        /// <param name="config">The <see cref="IConfiguration"/> that should be injected.</param>
         public CommandHandler(DiscordShardedClient client, ILogger<CommandHandler> logger, IServiceProvider provider, CommandService commandService, IConfiguration config)
             : base(client, logger)
         {
@@ -102,11 +102,7 @@ namespace Shion.Services
             await context.Channel.SendMessageAsync(embed: errorEmbed.Build());
         }
 
-        /// <summary>
-        /// Hooks events with corresponding methods for executing commands.
-        /// </summary>
-        /// <param name="stoppingToken">The <see cref="CancellationToken"/> to be passed.</param>
-        /// <returns>A <see cref="Task"/> representing the results of the asynchronous operation.</returns>
+        /// <inheritdoc />
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             this.Client.MessageReceived += this.MessageReceivedAsync;

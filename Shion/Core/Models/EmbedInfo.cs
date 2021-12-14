@@ -30,7 +30,6 @@ namespace Shion.Core.Structures
             Image URL
             Thumbnail URL
             URL
-            Timestamp
             */
         }
 

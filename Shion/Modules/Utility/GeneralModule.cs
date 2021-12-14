@@ -20,7 +20,7 @@ namespace Shion.Modules.Utility
         /// <summary>
         /// Initializes a new instance of the <see cref="GeneralModule"/> class.
         /// </summary>
-        /// <param name="logger">An <see cref="ILogger"/> representing a stream for logging.</param>
+        /// <param name="logger">An <see cref="ILogger"/> representing a stream for logging to be injected.</param>
         public GeneralModule(ILogger<GeneralModule> logger)
         {
             this.logger = logger;

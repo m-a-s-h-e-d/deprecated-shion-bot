@@ -20,9 +20,10 @@ namespace Shion.Core.Extensions
         /// <param name="builder">The <see cref="EmbedBuilder"/> to be passed.</param>
         /// <param name="channel">The <see cref="ISocketMessageChannel"/> to be passed.</param>
         /// <returns>A <see cref="Task"/> representing the results of the asynchronous operation. Produces a <see cref="RestUserMessage"/>.</returns>
-        public static Task<RestUserMessage> BuildAndSendEmbed(this EmbedBuilder builder, ISocketMessageChannel channel)
+        public static async Task<RestUserMessage> BuildAndSendEmbed(this EmbedBuilder builder, ISocketMessageChannel channel)
         {
-            return channel.SendMessageAsync(embed: builder.Build());
+            var sentMessage = await channel.SendMessageAsync(embed: builder.Build());
+            return await Task.FromResult(sentMessage);
         }
 
         /// <summary>
@@ -31,9 +32,10 @@ namespace Shion.Core.Extensions
         /// <param name="builder">The <see cref="EmbedBuilder"/> to be passed.</param>
         /// <param name="message">The <see cref="IUserMessage"/> to be passed.</param>
         /// <returns>A <see cref="Task"/> representing the results of the asynchronous operation. Produces a <see cref="IUserMessage"/>.</returns>
-        public static Task<IUserMessage> BuildAndReplyEmbed(this EmbedBuilder builder, IUserMessage message)
+        public static async Task<IUserMessage> BuildAndReplyEmbed(this EmbedBuilder builder, IUserMessage message)
         {
-            return message.ReplyAsync(embed: builder.Build());
+            var sentMessage = await message.ReplyAsync(embed: builder.Build());
+            return await Task.FromResult(sentMessage);
         }
     }
 }

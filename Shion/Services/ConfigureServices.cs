@@ -3,12 +3,20 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Discord.Addons.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Shion.Services
 {
+    /// <summary>
+    /// Class containing static helper methods to add services and singleton instances to an <see cref="IServiceCollection"/>.
+    /// </summary>
     public static class ConfigureServices
     {
+        /// <summary>
+        /// Adds all required <see cref="DiscordShardedClientService"/> to the main service collection.
+        /// </summary>
+        /// <param name="services">A <see cref="IServiceCollection"/> to be passed.</param>
         public static void RegisterServices(IServiceCollection services)
         {
             services.AddHostedService<CommandHandler>()

@@ -8,8 +8,18 @@ using Discord.WebSocket;
 
 namespace Shion.Core.Preconditions
 {
+    /// <summary>
+    /// The <see cref="PreconditionAttribute"/> to check if the command was issued by the bot owner.
+    /// </summary>
     public class RequireBotOwnerAttribute : PreconditionAttribute
     {
+        /// <summary>
+        /// Checks if the <see cref="ICommandContext"/> user is the bot owner.
+        /// </summary>
+        /// <param name="context">The <see cref="ICommandContext"/> to be passed.</param>
+        /// <param name="command">The <see cref="CommandInfo"/> to be passed.</param>
+        /// <param name="provider">The <see cref="IServiceProvider"/> to be passed.</param>
+        /// <returns>A <see cref="Task"/> representing the results of the asynchronous operation. Produces a <see cref="PreconditionResult"/>.</returns>
         public override Task<PreconditionResult> CheckPermissionsAsync(
             ICommandContext context,
             CommandInfo command,

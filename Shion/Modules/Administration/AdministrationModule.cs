@@ -19,18 +19,31 @@ using Shion.Modules.Utility;
 
 namespace Shion.Modules.Administration
 {
+    /// <summary>
+    /// The administration module containing bot owner level commands commands like shutdown.
+    /// </summary>
     public class AdministrationModule : ShionModuleBase
     {
         // You can inject the host. This is useful if you want to shutdown the host via a command, but be careful with it.
         private readonly IHost host;
         private readonly ILogger<AdministrationModule> logger;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AdministrationModule"/> class.
+        /// </summary>
+        /// <param name="host">An <see cref="IHost"/> to be injected.</param>
+        /// <param name="logger">An <see cref="ILogger"/> representing a stream for logging to be injected.</param>
         public AdministrationModule(IHost host, ILogger<AdministrationModule> logger)
         {
             this.host = host;
             this.logger = logger;
         }
 
+        /// <summary>
+        /// A command to delete a specified number of messages. Requires Manage Messages permission.
+        /// </summary>
+        /// <param name="amount">An <see cref="int"/> to be passed.</param>
+        /// <returns>A <see cref="Task"/> representing the results of the asynchronous operation.</returns>
         [Command("purge")]
         [RequireUserPermission(GuildPermission.ManageMessages)]
         public async Task Purge(int amount)
@@ -56,6 +69,10 @@ namespace Shion.Modules.Administration
             await message.DeleteAsync();
         }
 
+        /// <summary>
+        /// A command to turn off the bot. Can only be used by the configured Bot Owner.
+        /// </summary>
+        /// <returns>A <see cref="Task"/> representing the results of the asynchronous operation.</returns>
         [Command("shutdown")]
         [RequireBotOwner]
         public Task Stop()
@@ -64,6 +81,10 @@ namespace Shion.Modules.Administration
             return Task.CompletedTask;
         }
 
+        /// <summary>
+        /// A command to test Serilog logging. Can only be used by the configured Bot Owner.
+        /// </summary>
+        /// <returns>A <see cref="Task"/> representing the results of the asynchronous operation.</returns>
         [Command("log")]
         [RequireBotOwner]
         public Task TestLogs()

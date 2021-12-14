@@ -69,24 +69,24 @@ namespace Shion
                     // Set up client socket configs
                     config.SocketConfig = new DiscordSocketConfig
                     {
-                        // Total number of shards, generally 1 shard per 1,500 - 2,000 guilds the bot is in.
+                        // Total number of shards, generally 1 shard per 1,500 - 2,000 guilds the bot is in
                         TotalShards = 2,
 
-                        // Log context, higher = more information from logs.
+                        // Log context, higher = more information from logs
                         LogLevel = LogSeverity.Verbose,
 
-                        // Cache users in guild for faster lookup at the cost of more space used.
+                        // Cache users in guild for faster lookup at the cost of more space used
                         AlwaysDownloadUsers = true,
 
-                        // Number of messages being cached at a time.
+                        // Number of messages being cached at a time
                         MessageCacheSize = 200,
 
-                        // Gateway intentions
+                        // Discord gateway intentions
                         GatewayIntents = GatewayIntents.All,
                     };
 
-                    // Retrive BOT_TOKEN from environment variables
-                    config.Token = Environment.GetEnvironmentVariable("BOT_TOKEN") ?? string.Empty;
+                    // Retrive the Token from appsettings.json
+                    config.Token = context.Configuration["Token"] ?? string.Empty;
                 })
                 .UseCommandService((context, config) =>
                 {

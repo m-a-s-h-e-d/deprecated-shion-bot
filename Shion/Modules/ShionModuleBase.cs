@@ -13,7 +13,7 @@ using Shion.Modules.Utility;
 namespace Shion.Modules
 {
     /// <summary>
-    /// The base module with common methods used in other modules.
+    /// The common <see cref="ModuleBase"/> with methods used in other modules.
     /// </summary>
     public abstract class ShionModuleBase : ModuleBase<ShardedCommandContext>
     {
