@@ -23,7 +23,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Victoria" Version="6.0.1119" />
+    <PackageReference Include="Victoria" Version="5.2.4" />
   </ItemGroup>
 
   <ItemGroup>
@@ -35,7 +35,6 @@
     <Folder Include="Core\TypeReaders\" />
     <Folder Include="Modules\Moderation\" />
     <Folder Include="Modules\Fun\" />
-    <Folder Include="Modules\Media\" />
   </ItemGroup>
 
   <ItemGroup>

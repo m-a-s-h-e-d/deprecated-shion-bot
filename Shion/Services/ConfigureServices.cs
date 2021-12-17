@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Discord.Addons.Hosting;
 using Microsoft.Extensions.DependencyInjection;
+using Victoria;
 
 namespace Shion.Services
 {
@@ -20,13 +21,24 @@ namespace Shion.Services
         public static void RegisterServices(IServiceCollection services)
         {
             services.AddHostedService<CommandHandler>()
-                .AddStatusCollection();
+                .AddStatusCollection()
+                .AddMediaCollection();
         }
 
         private static IServiceCollection AddStatusCollection(this IServiceCollection services)
         {
             return services
                 .AddHostedService<BotStatusService>();
+        }
+
+        private static IServiceCollection AddMediaCollection(this IServiceCollection services)
+        {
+            return services
+                .AddLavaNode(lavaConfig =>
+                {
+                    lavaConfig.SelfDeaf = true;
+                    lavaConfig.Authorization = "lavalink";
+                });
         }
 
         private static IServiceCollection AddSocialsCollection(this IServiceCollection services)

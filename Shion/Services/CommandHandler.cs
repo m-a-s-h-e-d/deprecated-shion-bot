@@ -9,6 +9,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Shion.Core.Common.BotOptions;
+using Victoria;
 
 namespace Shion.Services
 {
@@ -20,6 +21,7 @@ namespace Shion.Services
         private readonly IServiceProvider provider;
         private readonly CommandService commandService;
         private readonly IConfiguration config;
+        private readonly LavaNode lavaNode;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CommandHandler"/> class.
@@ -29,12 +31,13 @@ namespace Shion.Services
         /// <param name="provider">The <see cref="IServiceProvider"/> that should be injected.</param>
         /// <param name="commandService">The <see cref="CommandService"/> that should be injected.</param>
         /// <param name="config">The <see cref="IConfiguration"/> that should be injected.</param>
-        public CommandHandler(DiscordShardedClient client, ILogger<CommandHandler> logger, IServiceProvider provider, CommandService commandService, IConfiguration config)
+        public CommandHandler(DiscordShardedClient client, ILogger<CommandHandler> logger, IServiceProvider provider, CommandService commandService, IConfiguration config, LavaNode lavaNode)
             : base(client, logger)
         {
             this.provider = provider;
             this.commandService = commandService;
             this.config = config;
+            this.lavaNode = lavaNode;
         }
 
         /// <summary>
@@ -106,6 +109,7 @@ namespace Shion.Services
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             this.Client.MessageReceived += this.MessageReceivedAsync;
+            this.Client.ShardReady += this.OnReadyAsync;
             this.commandService.CommandExecuted += this.CommandExecutedAsync;
             await this.commandService.AddModulesAsync(Assembly.GetEntryAssembly(), this.provider);
         }
@@ -122,5 +126,13 @@ namespace Shion.Services
                 .WithTitle("Failed to execute command")
                 .WithDescription($"The command `{command.Value.Name}` could not be completed.\n**Error**: `{result.ErrorReason}`")
                 .WithCurrentTimestamp();
+
+        private async Task OnReadyAsync(DiscordSocketClient client)
+        {
+            if (!this.lavaNode.IsConnected)
+            {
+                await this.lavaNode.ConnectAsync();
+            }
+        }
     }
 }
