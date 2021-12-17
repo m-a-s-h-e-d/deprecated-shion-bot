@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Shion.Data.Models;
 
 namespace Shion.Data.Context
 {
@@ -20,5 +21,10 @@ namespace Shion.Data.Context
             : base(options)
         {
         }
+
+        /// <summary>
+        /// Gets or sets <see cref="DbSet{TEntity}"/> representing the database table of Guilds.
+        /// </summary>
+        public DbSet<Guild> Guilds { get; set; }
     }
 }

@@ -10,7 +10,7 @@ using Microsoft.Extensions.Configuration;
 namespace Shion.Data.Context
 {
     /// <summary>
-    /// The <see cref="IDbContextFactory"/> that produces a preconfigured <see cref="ShionDbContext"/> for the Shion project.
+    /// The <see cref="IDesignTimeDbContextFactory{TContext}"/> that produces a preconfigured <see cref="ShionDbContext"/> for the Shion project.
     /// </summary>
     public class ShionDbContextFactory : IDesignTimeDbContextFactory<ShionDbContext>
     {
